@@ -9,6 +9,7 @@ import type {
   RestorePoint,
   Settings,
   UserPlugin,
+  UserSample,
 } from '../types';
 
 /**
@@ -20,7 +21,7 @@ import type {
  *  3. Los datos nuevos se rellenan con valores por defecto al leer (ver normalizers en repo.ts).
  */
 export const DB_NAME = 'reaper-academy';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export interface AcademyDB extends DBSchema {
   projects: { key: string; value: Project; indexes: { byUpdated: number } };
@@ -32,6 +33,7 @@ export interface AcademyDB extends DBSchema {
   settings: { key: string; value: Settings };
   activity: { key: string; value: ActivityEntry; indexes: { byAt: number } };
   restorePoints: { key: string; value: RestorePoint };
+  samples: { key: string; value: UserSample };
 }
 
 export type StoreName =
@@ -43,7 +45,8 @@ export type StoreName =
   | 'chats'
   | 'settings'
   | 'activity'
-  | 'restorePoints';
+  | 'restorePoints'
+  | 'samples';
 
 /** Stores que forman parte de un respaldo (los restorePoints no se incluyen a sí mismos). */
 export const BACKUP_STORES: StoreName[] = [
@@ -55,6 +58,7 @@ export const BACKUP_STORES: StoreName[] = [
   'chats',
   'settings',
   'activity',
+  'samples',
 ];
 
 let dbPromise: Promise<IDBPDatabase<AcademyDB>> | null = null;
@@ -78,7 +82,11 @@ export function getDB(): Promise<IDBPDatabase<AcademyDB>> {
           act.createIndex('byAt', 'at');
           db.createObjectStore('restorePoints', { keyPath: 'id' });
         }
-        // if (oldVersion < 2) { ... futuras migraciones ADITIVAS ... }
+        if (oldVersion < 2) {
+          // v0.2: samples propios del usuario para el estudio
+          db.createObjectStore('samples', { keyPath: 'id' });
+        }
+        // if (oldVersion < 3) { ... futuras migraciones ADITIVAS ... }
       },
       blocked() {
         console.warn('[db] Otra pestaña bloquea la actualización de la base de datos.');

@@ -1,4 +1,4 @@
-import type { ReaperStep, Verification } from '../types';
+import type { StudioStep, Verification } from '../types';
 
 export interface Advice {
   text: string;
@@ -15,7 +15,7 @@ export interface Param {
 export interface StageGuide {
   recommendations: Advice[];
   avoid?: Advice[];
-  reaper?: ReaperStep[];
+  steps?: StudioStep[]; // cómo hacerlo en el estudio de la app
   params?: Param[];
   check?: string[]; // cómo comprobar que funcionó
 }
@@ -40,20 +40,20 @@ export const STAGES: Stage[] = [
     order: 1,
     title: 'Idea musical',
     short: 'Qué quieres transmitir',
-    goal: 'Definir la emoción, la imagen y las referencias de tu canción antes de tocar REAPER.',
+    goal: 'Definir la emoción, la imagen y las referencias de tu canción antes de empezar a producir.',
     checklist: [
       { id: 'mood', text: 'Escribí 3 palabras que describen el ambiente (p. ej. nocturno, cálido, hipnótico)' },
       { id: 'refs', text: 'Registré al menos 2 canciones de referencia en la ficha del proyecto' },
-      { id: 'reaper', text: 'Creé y guardé el proyecto de REAPER en su propia carpeta' },
+      { id: 'reaper', text: 'Abrí mi canción en el Estudio de la app' },
     ],
     generic: {
       recommendations: [
         { text: 'Describe la canción en una frase ("un viaje nocturno en coche junto al mar").', why: 'Una idea clara te ayuda a decidir qué sonidos entran y cuáles sobran en cada etapa.', level: 'general' },
         { text: 'Elige 2 o 3 canciones de referencia del género.', why: 'Las referencias son tu mapa: las usarás para comparar sonidos, estructura y mezcla.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Crea un proyecto nuevo.', menu: { en: ['File', 'New project'], es: ['Archivo', 'Nuevo proyecto'] }, shortcut: 'Ctrl+N', level: 'verificado' },
-        { text: 'Guárdalo con el nombre de la canción en una carpeta propia.', menu: { en: ['File', 'Save project as...'], es: ['Archivo', 'Guardar proyecto como...'] }, level: 'verificado' },
+      steps: [
+        { text: 'Escribe tu idea y tus referencias en la pestaña "Ficha del proyecto" de esta guía.' },
+        { text: 'Abre tu canción en el Estudio: si la creaste con la plantilla Deep House ya tendrás un groove sonando para inspirarte.', view: 'pistas' },
       ],
       check: ['Puedes explicar tu canción en una frase.', 'Tienes las referencias anotadas para compararlas después.'],
     },
@@ -83,11 +83,11 @@ export const STAGES: Stage[] = [
     generic: {
       recommendations: [
         { text: 'Escucha cada referencia tres veces: una para disfrutar, otra para el ritmo y otra para los sonidos.', why: 'La escucha analítica entrena tu oído y te da decisiones concretas.', level: 'general' },
-        { text: 'Importa una referencia a REAPER en una pista silenciada para comparar.', why: 'Tenerla en el proyecto permite compararla al instante (recuerda igualar su volumen).', level: 'general' },
+        { text: 'Sube una referencia como sample y úsala en una pista silenciada para comparar.', why: 'Tenerla dentro de la canción permite compararla al instante (recuerda igualar su volumen).', level: 'experimental' },
       ],
-      reaper: [
-        { text: 'Importa la referencia en una pista nueva.', menu: { en: ['Insert', 'Media file...'], es: ['Insertar', 'Archivo multimedia...'] }, shortcut: 'Insert', level: 'verificado' },
-        { text: 'Silencia la pista de referencia con su botón M (mute) cuando no la uses.', level: 'verificado' },
+      steps: [
+        { text: 'Añadir pista › Mis samples › "Subir audio" y elige tu canción de referencia (máx. 15 MB).', view: 'pistas', tip: 'Como pista de sample sonará desde el inicio de cada parte: sirve para comparar el sonido, no para seguirla entera.' },
+        { text: 'Pulsa M en la pista de referencia para silenciarla cuando no la uses.' },
       ],
     },
     byGenre: {
@@ -112,8 +112,8 @@ export const STAGES: Stage[] = [
     short: 'Tempo y notas base',
     goal: 'Fijar tempo, métrica y tonalidad antes de crear sonidos.',
     checklist: [
-      { id: 'bpm', text: 'Fijé el BPM en Project settings de REAPER' },
-      { id: 'sig', text: 'Comprobé que la métrica es 4/4' },
+      { id: 'bpm', text: 'Fijé el BPM en el transporte del Estudio' },
+      { id: 'sig', text: 'Entiendo que el estudio trabaja en compases de 4/4' },
       { id: 'key', text: 'Elegí la tonalidad y la guardé en la ficha del proyecto' },
       { id: 'notes', text: 'Anoté las notas de la escala' },
     ],
@@ -122,9 +122,9 @@ export const STAGES: Stage[] = [
         { text: 'Usa el BPM típico del género como punto de partida.', why: 'Encaja con lo que esperan oyentes y DJ; puedes moverte dentro del rango.', level: 'general' },
         { text: 'Si dudas, elige una tonalidad menor sencilla (La menor).', why: 'Solo usa teclas blancas: menos errores mientras aprendes.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Abre Project settings y escribe el BPM y la métrica.', menu: { en: ['File', 'Project settings...'], es: ['Archivo', 'Configuración del proyecto...'] }, shortcut: 'Alt+Enter', level: 'verificado' },
-        { text: 'Activa el metrónomo con su botón de la barra de transporte y verifica el tempo.', level: 'confirmar' },
+      steps: [
+        { text: 'En el transporte del Estudio usa − y + junto al BPM.', view: 'pistas' },
+        { text: 'La tonalidad se elige en la Ficha del proyecto; el editor de notas la usa para mostrar solo las notas de la escala.' },
       ],
     },
     byGenre: {
@@ -137,7 +137,6 @@ export const STAGES: Stage[] = [
           { name: 'BPM', value: '122', note: 'Rango típico 118–125' },
           { name: 'Métrica', value: '4/4' },
           { name: 'Tonalidad inicial', value: 'La menor (A B C D E F G)' },
-          { name: 'Frecuencia de muestreo', value: '44100 o 48000 Hz', note: 'Mantén la misma durante todo el proyecto' },
         ],
       },
     },
@@ -153,19 +152,19 @@ export const STAGES: Stage[] = [
     checklist: [
       { id: 'pick', text: 'Comparé al menos 5 kicks y elegí uno' },
       { id: 'pattern', text: 'Lo programé four-on-the-floor (1, 2, 3, 4)' },
-      { id: 'level', text: 'Ajusté su nivel dejando margen (picos por debajo de 0 dBFS en su pista)' },
+      { id: 'level', text: 'Ajusté su volumen dejando margen (el pico del master no llega a 0 dBFS)' },
       { id: 'tune', text: 'Comprobé si su tono choca con la tonalidad (y lo afiné si hizo falta)' },
     ],
     generic: {
       recommendations: [
         { text: 'Compara kicks al mismo volumen.', why: 'El oído tiende a preferir lo que suena más fuerte; igualar el volumen hace la comparación justa.', level: 'general' },
-        { text: 'Carga el sample en ReaSamplOmatic5000 (RS5k) o en tu sampler.', why: 'RS5k viene con REAPER y consume muy poca CPU.', level: 'general' },
+        { text: 'Prueba los kicks incluidos (Kick Deep, Kick Punch, Kick 808 largo) y, si tienes, tus propios samples de kick.', why: 'Comparar opciones en tu canción es la forma más rápida de elegir bien.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Inserta RS5k en una pista nueva: Insert › Virtual instrument on new track… y busca "ReaSamplOmatic5000".', menu: { en: ['Insert', 'Virtual instrument on new track...'], es: ['Insertar', 'Instrumento virtual en nueva pista...'] }, level: 'verificado' },
-        { text: 'Arrastra el sample de kick desde el explorador de archivos a la ventana de RS5k.', level: 'verificado' },
-        { text: 'Si necesitas afinarlo, usa el control de tono (pitch) de RS5k.', level: 'confirmar' },
-        { text: 'Crea un ítem MIDI de 1 compás con notas en los pasos 1, 5, 9 y 13 de la cuadrícula a 1/16.', menu: { en: ['Insert', 'New MIDI item'], es: ['Insertar', 'Nuevo ítem MIDI'] }, level: 'verificado' },
+      steps: [
+        { text: 'Toca la pista Kick y pulsa el botón del sonido para cambiarlo: escucha cada kick con ▶ antes de usarlo.', view: 'pistas' },
+        { text: 'Para usar tu sample: Cambiar sonido › Mis samples › Subir audio.' },
+        { text: 'Comprueba que el kick está en los pasos 1, 5, 9 y 13 (los pulsos) de cada compás.' },
+        { text: 'Afínalo con "Afinación" (semitonos) si choca con el bajo.' },
       ],
       check: ['El kick se oye claro a volumen bajo.', 'No hace clip en el medidor de su pista.'],
     },
@@ -199,17 +198,18 @@ export const STAGES: Stage[] = [
       { id: 'ohat', text: 'Hi-hat abierto en los contratiempos' },
       { id: 'shaker', text: 'Hats cerrados o shaker en semicorcheas con velocity variable' },
       { id: 'swing', text: 'Probé el swing hasta encontrar el balanceo' },
-      { id: 'folder', text: 'Agrupé la batería en una carpeta (folder) "Drums"' },
+      { id: 'folder', text: 'Puse nombres claros a mis pistas de batería' },
     ],
     generic: {
       recommendations: [
         { text: 'Añade un elemento cada vez y escúchalo en bucle.', why: 'Así sabes qué aporta cada sonido y evitas saturar el groove.', level: 'general' },
         { text: 'Varía las velocities de hats y shakers.', why: 'La alternancia fuerte-débil crea movimiento y sensación humana.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Crea una pista por sonido (Clap, Hat abierto, Shaker) con RS5k en cada una.', level: 'verificado' },
-        { text: 'Crea una pista carpeta (folder) para la batería: con la carpeta encima, usa el icono de carpeta del panel de la pista o arrastra las pistas dentro.', level: 'confirmar', tip: 'Una carpeta permite subir o bajar toda la batería con un solo fader.' },
-        { text: 'Aplica swing mediante la cuantización del editor MIDI.', level: 'confirmar' },
+      steps: [
+        { text: 'Añadir pista › Batería: Clap, Hi-hat abierto, Hi-hat cerrado o Shaker.', view: 'pistas' },
+        { text: 'Programa el compás 1 y usa "Copiar este compás a todos".' },
+        { text: 'Ajusta el Swing en "Ajustes del loop".' },
+        { text: 'Usa "Acento" para alternar golpes fuertes y suaves en hats y shakers.' },
       ],
       check: ['El loop de 4 compases es bailable sin bajo.', 'Ningún elemento tapa al kick.'],
     },
@@ -247,9 +247,10 @@ export const STAGES: Stage[] = [
         { text: 'Empieza con la tónica y añade 2 o 3 notas de la escala.', why: 'Las líneas sencillas funcionan mejor en los graves; demasiadas notas enturbian.', level: 'general' },
         { text: 'Mantén el bajo en mono en los graves.', why: 'Los graves en estéreo pierden potencia en sistemas mono y en clubes.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Inserta tu sintetizador en una pista nueva (si no tienes otro, ReaSynth sirve para un bajo sencillo).', menu: { en: ['Insert', 'Virtual instrument on new track...'], es: ['Insertar', 'Instrumento virtual en nueva pista...'] }, level: 'verificado' },
-        { text: 'Programa la línea en el editor MIDI en la octava 1–2 (aprox. C1–C3).', level: 'verificado' },
+      steps: [
+        { text: 'Añadir pista › Instrumentos › Bajos (Bajo Deep, Sub bajo, Bajo órgano o Bajo filtrado).', view: 'pistas' },
+        { text: 'En el editor de notas, con "Solo notas de…" activado, programa en la octava 1–2.' },
+        { text: 'En Mezcla, sube el "Sidechain (kick)" del bajo para que respire con el kick.', view: 'mezcla' },
       ],
       check: ['Escucha kick + bajo a volumen bajo: debes distinguir ambos.', 'Las notas del bajo no chocan con la tonalidad.'],
     },
@@ -267,7 +268,7 @@ export const STAGES: Stage[] = [
         ],
         params: [
           { name: 'Octava', value: 'A1–A2 en La menor', note: 'A1 ≈ 55 Hz' },
-          { name: 'Filtro paso bajo del sinte', value: 'aprox. 300–800 Hz', note: 'Ajusta a oído' },
+          { name: 'Filtro del bajo (Mezcla)', value: 'aprox. 600–1500 Hz', note: 'Ajusta a oído: más bajo = más redondo' },
           { name: 'Duración de notas', value: 'Cortas (1/16–1/8) para groove', note: 'Las largas dan más "colchón"' },
         ],
       },
@@ -291,8 +292,9 @@ export const STAGES: Stage[] = [
         { text: 'Pocas percusiones bien elegidas.', why: 'Cada sonido extra ocupa espacio; dos percusiones buenas valen más que seis mediocres.', level: 'general' },
         { text: 'Pregunta y respuesta: una percusión en un lado, otra respondiendo en el otro.', why: 'Crea movimiento estéreo e interés.', level: 'experimental' },
       ],
-      reaper: [
-        { text: 'Ajusta el paneo con el control "pan" de la pista (en el panel de pistas o en el mezclador).', level: 'verificado' },
+      steps: [
+        { text: 'Añadir pista › Batería › Percusión (Congas, Rim, Shaker) o tus samples.', view: 'pistas' },
+        { text: 'En Mezcla, ajusta el Paneo de cada percusión a izquierda o derecha.', view: 'mezcla' },
       ],
     },
     byGenre: {
@@ -382,23 +384,23 @@ export const STAGES: Stage[] = [
     checklist: [
       { id: 'layer', text: 'Añadí al menos una textura o pad de fondo' },
       { id: 'level', text: 'La textura se nota más cuando la quito que cuando está' },
-      { id: 'hpf', text: 'Le apliqué un filtro paso alto para limpiar los graves' },
+      { id: 'hpf', text: 'Le quité graves para limpiar la mezcla' },
     ],
     generic: {
       recommendations: [
         { text: 'Mantén las texturas a volumen bajo.', why: 'Su función es crear ambiente; si se oyen claramente, compiten con los elementos principales.', level: 'general' },
-        { text: 'Aplica un filtro paso alto (HPF) a las texturas.', why: 'Los graves de las capas de fondo se acumulan y quitan claridad al kick y al bajo.', level: 'general' },
+        { text: 'Quita graves a las texturas (control "Graves" en Mezcla).', why: 'Los graves de las capas de fondo se acumulan y quitan claridad al kick y al bajo.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Inserta ReaEQ en la pista de la textura: botón FX de la pista › busca "ReaEQ".', level: 'verificado' },
-        { text: 'En ReaEQ, cambia el tipo de la primera banda a "High Pass" y sube su frecuencia hasta que la textura deje de aportar graves.', level: 'confirmar' },
+      steps: [
+        { text: 'Añade un Pad oscuro o un sample de ambiente (lluvia, vinilo…) desde Mis samples.', view: 'pistas' },
+        { text: 'En Mezcla baja los "Graves" de la textura (o baja el Filtro) y súbele la Reverb.', view: 'mezcla' },
       ],
     },
     byGenre: {
       'deep-house': {
         recommendations: [
           { text: 'Pads cálidos, ruido de vinilo, grabaciones de ambiente (lluvia, ciudad).', why: 'Son recursos habituales para la atmósfera "profunda" y nocturna.', level: 'general' },
-          { text: 'Reverb larga en la textura (en un bus de envío).', why: 'Empuja la textura "hacia atrás" y crea sensación de espacio.', level: 'general' },
+          { text: 'Mucha reverb en la textura (control Reverb en Mezcla).', why: 'Empuja la textura "hacia atrás" y crea sensación de espacio.', level: 'general' },
         ],
       },
     },
@@ -412,7 +414,7 @@ export const STAGES: Stage[] = [
     short: 'Del loop a la canción',
     goal: 'Convertir tu loop en una canción completa con secciones de 8/16/32 compases.',
     checklist: [
-      { id: 'markers', text: 'Marqué las secciones con marcadores o regiones en REAPER' },
+      { id: 'markers', text: 'Creé las partes de la canción en la pestaña Estructura' },
       { id: 'intro', text: 'La intro permite mezclar al DJ (empieza con batería)' },
       { id: 'break', text: 'Hay al menos un break donde bajan los graves' },
       { id: 'outro', text: 'La outro va retirando elementos' },
@@ -422,10 +424,11 @@ export const STAGES: Stage[] = [
         { text: 'Trabaja por secciones de 8, 16 o 32 compases.', why: 'Es la unidad que espera el oyente y facilita la mezcla de DJ.', level: 'general' },
         { text: 'Crea contraste: quitar elementos es tan importante como añadirlos.', why: 'La energía se percibe por comparación; un break hace que el drop golpee más.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Inserta un marcador en la posición del cursor y renómbralo con doble clic (Intro, Break, Drop...).', shortcut: 'M', level: 'verificado' },
-        { text: 'Para crear una región a partir de una selección de tiempo, usa el menú Insert.', menu: { en: ['Insert', 'Region from time selection'], es: ['Insertar', 'Región desde la selección de tiempo'] }, level: 'confirmar' },
-        { text: 'Copia y pega ítems (Ctrl+C / Ctrl+V) para extender tu loop a lo largo de la canción.', level: 'verificado' },
+      steps: [
+        { text: 'Abre la pestaña Estructura: cada parte repite tu loop y tú eliges qué pistas suenan.', view: 'estructura' },
+        { text: 'Pulsa "Estructura Deep House" para generar Intro, Groove, Break, Drop y Outro con tus pistas, y ajústala.' },
+        { text: 'Toca los nombres de pista de cada parte para encenderlas o apagarlas; ▶ reproduce desde esa parte.' },
+        { text: 'Escucha la canción completa en modo Canción.' },
       ],
     },
     byGenre: {
@@ -443,29 +446,29 @@ export const STAGES: Stage[] = [
   {
     id: 'automatizacion',
     order: 12,
-    title: 'Automatizaciones',
+    title: 'Automatizaciones y variaciones',
     short: 'Movimiento en el tiempo',
-    goal: 'Dar vida al arreglo con cambios graduales de filtro, volumen y efectos.',
+    goal: 'Dar vida al arreglo con cambios de sonido entre partes (las curvas de automatización llegarán en una próxima versión).',
     checklist: [
-      { id: 'filter', text: 'Automaticé un filtro en una transición' },
-      { id: 'send', text: 'Automaticé un envío de reverb o delay' },
-      { id: 'volume', text: 'Automaticé el volumen de algún elemento que entra o sale' },
+      { id: 'filter', text: 'Creé una versión filtrada (más oscura) de una pista para el break' },
+      { id: 'send', text: 'Usé más reverb o delay en una parte para crear contraste' },
+      { id: 'volume', text: 'Hice que algún elemento entre o salga entre partes' },
     ],
     generic: {
       recommendations: [
         { text: 'Automatiza pocas cosas pero con intención.', why: 'Cada automatización debe acompañar un cambio de sección o de emoción.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Abre el plugin (p. ej. ReaEQ), mueve el parámetro que quieras automatizar y usa el botón "Param" de la ventana del plugin para mostrar su envolvente en la pista.', level: 'confirmar' },
-        { text: 'También puedes abrir las envolventes de la pista desde el botón de envolventes del panel de pistas y activar Volume o Pan.', level: 'confirmar' },
-        { text: 'Haz Mayús+clic sobre la línea de la envolvente para añadir puntos y arrástralos.', level: 'confirmar' },
+      steps: [
+        { text: 'Duplica una pista (botón de duplicar en su editor) y, en Mezcla, baja el Filtro de la copia para que suene oscura y lejana.', view: 'pistas' },
+        { text: 'En Estructura, usa la copia oscura en el Break y la original en el Drop.', view: 'estructura' },
+        { text: 'Las curvas de automatización (cambios graduales dentro de una parte) todavía no están en el estudio: están planificadas.', tip: 'Puedes pedir su prioridad en Ideas y mejoras.' },
       ],
     },
     byGenre: {
       'deep-house': {
         recommendations: [
-          { text: 'Abre lentamente el filtro paso bajo de los acordes o del bajo antes de un drop.', why: 'El barrido de filtro es una transición clásica del house: crea expectativa sin cortar el groove.', level: 'general' },
-          { text: 'Sube el envío de reverb al final de una frase y bájalo al entrar la siguiente.', why: 'Crea una "cola" que une secciones.', level: 'experimental' },
+          { text: 'Usa una versión filtrada de los acordes en el Break y la abierta en el Drop.', why: 'El contraste oscuro → brillante es una transición clásica del house: crea expectativa sin cortar el groove.', level: 'general' },
+          { text: 'Pon más reverb a la copia del Break que a la del Drop.', why: 'El break suena más espacioso y el drop más directo y cercano.', level: 'experimental' },
         ],
       },
     },
@@ -478,11 +481,11 @@ export const STAGES: Stage[] = [
     short: 'Equilibrio y claridad',
     goal: 'Que todos los elementos se oigan claros y equilibrados, dejando margen para el mastering.',
     checklist: [
-      { id: 'gain', text: 'Gain staging: ninguna pista hace clip y el master tiene picos alrededor de -6 dBFS' },
+      { id: 'gain', text: 'El pico del master queda por debajo de 0 dBFS con margen' },
       { id: 'faders', text: 'Balance de faders empezando por el kick' },
-      { id: 'hpf', text: 'Filtro paso alto en los elementos que no necesitan graves' },
+      { id: 'hpf', text: 'Quité graves a los elementos que no los necesitan' },
       { id: 'sidechain', text: 'Sidechain del kick al bajo configurado' },
-      { id: 'sends', text: 'Reverb y delay en pistas de envío (buses)' },
+      { id: 'sends', text: 'Usé reverb y delay con moderación' },
       { id: 'mono', text: 'Comprobé la mezcla en mono y a volumen bajo' },
       { id: 'ref', text: 'Comparé con una referencia al mismo volumen percibido' },
     ],
@@ -490,35 +493,33 @@ export const STAGES: Stage[] = [
       recommendations: [
         { text: 'Mezcla a volumen moderado y bajo.', why: 'A volumen alto el oído se cansa y percibe los graves y agudos distinto (curvas de igual sonoridad).', level: 'general' },
         { text: 'Primero faders y paneo; después EQ; después compresión.', why: 'Muchos problemas se resuelven solo con volumen. Procesar antes de equilibrar lleva a decisiones erróneas.', level: 'general' },
-        { text: 'Usa la reverb y el delay en pistas de envío al 100 % wet.', why: 'Varias pistas comparten el mismo espacio (más coherente) y gastas menos CPU.', level: 'general' },
+        { text: 'Usa la misma reverb compartida para todo (el estudio ya funciona así: cada pista decide cuánto envía).', why: 'Si todos los sonidos comparten el mismo espacio, la mezcla suena coherente.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Abre el mezclador para trabajar los faders.', menu: { en: ['View', 'Mixer'], es: ['Ver', 'Mezclador'] }, shortcut: 'Ctrl+M', level: 'verificado' },
-        { text: 'Inserta ReaEQ: botón FX de la pista › escribe "ReaEQ" en el buscador › doble clic.', level: 'verificado' },
-        { text: 'Crea un envío: arrastra desde el botón de ruteo ("Route"/IO) de una pista hasta la pista de reverb, o abre Route › Add new send.', level: 'confirmar' },
+      steps: [
+        { text: 'Abre Mezcla. Empieza con todo el volumen master a la vista y el kick como referencia.', view: 'mezcla' },
+        { text: 'Ajusta los volúmenes pista por pista: kick, bajo, clap, luego el resto.' },
+        { text: 'Despliega cada canal (flecha) para EQ, Filtro, Reverb, Delay y Sidechain.' },
+        { text: 'Vigila el medidor de pico del master mientras suena la parte más fuerte (el Drop).' },
       ],
       check: ['Ningún medidor llega a rojo.', 'Puedes seguir cada elemento con atención.', 'En mono no desaparece nada importante.'],
     },
     byGenre: {
       'deep-house': {
         recommendations: [
-          { text: 'Sidechain kick → bajo con ReaComp.', why: 'El bajo baja un instante cuando suena el kick: graves limpios y la "respiración" típica del género.', level: 'general' },
+          { text: 'Sidechain kick → bajo con el control "Sidechain (kick)".', why: 'El bajo baja un instante cuando suena el kick: graves limpios y la "respiración" típica del género.', level: 'general' },
           { text: 'Kick y bajo al centro; percusiones y efectos repartidos en el estéreo.', why: 'Los graves en el centro mantienen la potencia en cualquier sistema.', level: 'general' },
           { text: 'Agudos suaves: controla hats y shakers con EQ si suenan estridentes.', why: 'El sonido del Deep House suele ser cálido; un exceso de 6–10 kHz cansa.', level: 'general' },
         ],
-        reaper: [
-          { text: '1) En la pista del BAJO, abre el botón de ruteo (Route) y pon "Track channels" en 4.', level: 'confirmar' },
-          { text: '2) En la pista del KICK, abre Route › Add new send › elige la pista del bajo y como destino de audio los canales 3/4.', level: 'confirmar' },
-          { text: '3) En el bajo inserta ReaComp y en "Detector input" elige "Auxiliary Input L + R".', level: 'confirmar', tip: 'Así el compresor del bajo "escucha" al kick y reacciona a él.' },
-          { text: '4) Baja el Threshold hasta ver unos 3–6 dB de reducción en cada golpe de kick y ajusta el Release al ritmo.', level: 'general' },
+        steps: [
+          { text: 'En Mezcla, despliega el canal del Bajo y sube "Sidechain (kick)" a 50–70 %.', view: 'mezcla' },
+          { text: 'Haz lo mismo, más suave (20–50 %), en acordes y pad para que todo respire con el kick.' },
+          { text: 'Compara con el sidechain a 0 % para notar la diferencia.' },
         ],
         params: [
-          { name: 'ReaComp (sidechain) · Ratio', value: '4:1 o más', note: 'Orientativo' },
-          { name: 'ReaComp · Attack', value: '0–2 ms' },
-          { name: 'ReaComp · Release', value: 'aprox. 80–200 ms', note: 'A 122 BPM una negra dura ~492 ms: que el bajo vuelva antes del siguiente kick' },
-          { name: 'Reducción de ganancia', value: 'aprox. 3–6 dB', note: 'Más = efecto de "bombeo" más evidente' },
-          { name: 'HPF en pads/acordes', value: 'aprox. 100–200 Hz', note: 'Súbelo hasta que notes que se adelgazan y retrocede un poco' },
-          { name: 'Picos del master antes de masterizar', value: 'aprox. -6 dBFS', note: 'Margen (headroom) para el mastering' },
+          { name: 'Sidechain del bajo', value: 'aprox. 50–70 %', note: 'Más = efecto de "bombeo" más evidente' },
+          { name: 'Sidechain de acordes y pad', value: 'aprox. 20–50 %' },
+          { name: 'Graves de pads y acordes', value: 'aprox. -4 a -8 dB', note: 'Que el bajo y el kick tengan los graves para ellos' },
+          { name: 'Pico del master durante la mezcla', value: 'aprox. -6 a -3 dBFS', note: 'Margen (headroom) para el volumen final' },
         ],
       },
     },
@@ -532,9 +533,9 @@ export const STAGES: Stage[] = [
     short: 'Volumen final y coherencia',
     goal: 'Dar el volumen final con un limitador, sin destruir la dinámica, y comparar con referencias.',
     checklist: [
-      { id: 'headroom', text: 'La mezcla llega con margen (sin limitador en el master durante la mezcla)' },
-      { id: 'meter', text: 'Inserté un medidor de loudness (LUFS) en el master' },
-      { id: 'limiter', text: 'Limitador al final de la cadena con techo de aprox. -1 dBTP' },
+      { id: 'headroom', text: 'La mezcla llega con margen antes de subir el volumen final' },
+      { id: 'meter', text: 'Exporté y revisé el pico y el loudness (LUFS) medidos' },
+      { id: 'limiter', text: 'El limitador de protección está activo y el pico exportado queda por debajo de 0 dBFS' },
       { id: 'compare', text: 'Comparé con una referencia al mismo volumen percibido' },
       { id: 'translate', text: 'Lo escuché en otros sistemas (auriculares, móvil, coche)' },
     ],
@@ -544,23 +545,21 @@ export const STAGES: Stage[] = [
         { text: 'Compara siempre al mismo volumen percibido.', why: 'Lo más fuerte siempre "parece" mejor; igualar evita engañarte.', level: 'general' },
         { text: 'No hay un número de LUFS que garantice un buen master.', why: 'El LUFS mide sonoridad, no calidad. Las plataformas de streaming normalizan el volumen (Spotify toma -14 LUFS integrados como referencia por defecto).', level: 'general' },
       ],
-      reaper: [
-        { text: 'En la pista Master, pulsa su botón FX para abrir su cadena de efectos.', level: 'verificado' },
-        { text: 'Inserta el medidor de loudness incluido: en el buscador de FX escribe "Loudness" y elige "JS: Loudness Meter Peak/RMS/LUFS".', level: 'confirmar' },
-        { text: 'Inserta un limitador al final de la cadena (ReaLimit viene con REAPER) y ajusta su techo (ceiling) a aprox. -1 dB.', level: 'confirmar' },
+      steps: [
+        { text: 'En Mezcla › Master activa el "Limitador de protección" y sube el volumen master poco a poco.', view: 'mezcla' },
+        { text: 'Exporta (botón Exportar del transporte) y revisa el pico y el loudness integrado (LUFS) que se miden en el archivo.', view: 'exportar' },
+        { text: 'Exporta también una referencia o compárala de oído al mismo volumen.', tip: 'El estudio aún no tiene EQ ni compresor en el master: el mastering avanzado llegará con el módulo de Análisis.' },
       ],
     },
     byGenre: {
       'deep-house': {
         recommendations: [
-          { text: 'Cadena orientativa: EQ suave → compresión de bus ligera → limitador.', why: 'Es un orden habitual: primero tono, después cohesión, al final control de picos.', level: 'general' },
+          { text: 'Antes de subir el volumen final, corrige la mezcla: el mastering solo pule.', why: 'Si algo suena mal en la mezcla, el volumen final lo hará más evidente.', level: 'general' },
           { text: 'Mide tus referencias con el mismo medidor y apunta su LUFS integrado.', why: 'Te da un objetivo realista para tu género en lugar de un número genérico.', level: 'general' },
           { text: 'Vigila que el kick conserve su pegada tras el limitador.', why: 'En música de baile, si el limitador aplasta el kick el groove pierde fuerza.', level: 'general' },
         ],
         params: [
-          { name: 'Compresión de bus · Ratio', value: 'aprox. 1,5:1–2:1', note: 'Muy suave' },
-          { name: 'Compresión de bus · Reducción', value: 'aprox. 1–2 dB' },
-          { name: 'Limitador · Techo', value: 'aprox. -1 dBTP', note: 'Margen para la conversión a MP3/AAC' },
+          { name: 'Pico del archivo exportado', value: 'aprox. -1 dBFS o menos', note: 'Margen para la conversión a MP3/AAC' },
           { name: 'LUFS integrado', value: 'Según tus referencias medidas', note: 'Los masters de club suelen ser más fuertes que -14; mide antes de decidir' },
         ],
       },
@@ -574,29 +573,27 @@ export const STAGES: Stage[] = [
     short: 'Render y entrega',
     goal: 'Exportar el máster en la calidad correcta y guardar una copia de seguridad del proyecto.',
     checklist: [
-      { id: 'wav', text: 'Exporté un WAV 24 bits a la frecuencia del proyecto' },
+      { id: 'wav', text: 'Exporté mi canción en WAV' },
       { id: 'listen', text: 'Escuché el archivo exportado completo' },
-      { id: 'backup', text: 'Guardé una copia del proyecto de REAPER con todos sus medios' },
+      { id: 'backup', text: 'Descargué una copia de seguridad de la app (Sistema)' },
       { id: 'notes', text: 'Registré la versión y mis observaciones en la ficha del proyecto' },
     ],
     generic: {
       recommendations: [
-        { text: 'Exporta el máster en WAV y genera el MP3 a partir de él si lo necesitas.', why: 'El WAV conserva toda la calidad; el MP3 es solo para escuchas rápidas.', level: 'general' },
+        { text: 'Guarda el WAV como versión maestra; si necesitas MP3, conviértelo a partir del WAV.', why: 'El WAV conserva toda la calidad; el MP3 es solo para escuchas rápidas.', level: 'general' },
         { text: 'Escucha el archivo exportado de principio a fin.', why: 'A veces aparecen cortes, clics o pistas silenciadas que no notaste dentro del proyecto.', level: 'general' },
       ],
-      reaper: [
-        { text: 'Abre la ventana de render.', menu: { en: ['File', 'Render...'], es: ['Archivo', 'Renderizar...'] }, shortcut: 'Ctrl+Alt+R', level: 'verificado' },
-        { text: 'Source: "Master mix". Bounds: "Entire project". Elige carpeta y nombre de archivo.', level: 'verificado' },
-        { text: 'Formato: WAV, profundidad 24 bit PCM, frecuencia igual a la del proyecto. Pulsa "Render 1 file".', level: 'verificado' },
-        { text: 'Si tu versión lo incluye, usa "Dry run" en la ventana de render para obtener estadísticas de loudness sin crear el archivo.', level: 'confirmar' },
-        { text: 'Para la copia de seguridad, usa "Save project as..." marcando la opción de copiar todos los medios a la carpeta del proyecto.', menu: { en: ['File', 'Save project as...'], es: ['Archivo', 'Guardar proyecto como...'] }, level: 'confirmar' },
+      steps: [
+        { text: 'Pulsa Exportar en el transporte, elige WAV 16 bits (compatible con todo) o 24 bits (más calidad) y pulsa Renderizar.', view: 'exportar' },
+        { text: 'Escucha el resultado en el reproductor que aparece y pulsa Descargar.' },
+        { text: 'En Sistema › Copias de seguridad descarga un respaldo: guarda tu canción y tus samples.' },
       ],
     },
     byGenre: {
       'deep-house': {
         recommendations: [
           { text: 'Exporta también una versión "extended" para DJ si tu arreglo es corto.', why: 'Los DJ prefieren intros y outros largas para mezclar.', level: 'general' },
-          { text: 'Deja un par de segundos de silencio al final para que caigan las colas de reverb.', why: 'Evita cortar el final de los efectos.', level: 'general' },
+          { text: 'Termina con un Outro que vaya quitando elementos.', why: 'Un final gradual suena natural; el estudio añade 3 segundos al final para que caigan las colas de reverb.', level: 'general' },
         ],
       },
     },

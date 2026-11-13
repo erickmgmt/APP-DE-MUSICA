@@ -4,7 +4,6 @@ import { matchQuestion } from '../src/core/ai/tutorEngine';
 import { isUnlocked, nextLesson, scoreQuiz } from '../src/core/academyLogic';
 import { LESSONS, getLesson } from '../src/content/academy';
 import { scaleNoteNames, relativeKey, midiToFreq, midiToName, noteMs } from '../src/core/music/theory';
-import { suggestPlugins } from '../src/core/pluginAdvisor';
 import { advise } from '../src/core/producerAdvisor';
 import { normalizeProject } from '../src/core/db/repo';
 
@@ -31,7 +30,9 @@ describe('profesor offline', () => {
     ['No sé qué poner en el segundo drop', 'segundo-drop'],
     ['Mi mezcla suena muy opaca', 'opaca'],
     ['¿Qué hago después de terminar la batería?', 'despues-bateria'],
-    ['reaper hace chasquidos y se traba', 'cpu'],
+    ['la app hace chasquidos y se traba', 'cpu'],
+    ['mi pista no suena', 'midi-no-suena'],
+    ['como hago sidechain', 'sidechain'],
     ['cuantos LUFS para spotify', 'lufs'],
   ];
   it.each(cases)('"%s" → %s', (q, id) => {
@@ -75,17 +76,6 @@ describe('teoría musical', () => {
     expect(midiToName(60)).toBe('C4');
     expect(noteMs(120, 4)).toBe(500);
     expect(noteMs(122, 4)).toBeCloseTo(491.8, 1);
-  });
-});
-
-describe('asesor de plugins', () => {
-  it('prioriza los plugins del usuario, luego REAPER, luego gratuitos', () => {
-    const mine = [{ id: '1', name: 'Mi EQ', developer: 'X', version: '1', format: 'VST3' as const, categories: ['eq'], cpu: 'ligero' as const, notes: '', favorite: false, createdAt: 0, updatedAt: 0 }];
-    const s = suggestPlugins('eq', mine, true);
-    expect(s[0]).toMatchObject({ name: 'Mi EQ', source: 'tuyo' });
-    expect(s.find((x) => x.source === 'reaper')?.name).toBe('ReaEQ');
-    expect(s.findIndex((x) => x.source === 'reaper')).toBeLessThan(s.findIndex((x) => x.source === 'gratuito'));
-    expect(suggestPlugins('eq', [], false).some((x) => x.source === 'reaper')).toBe(false);
   });
 });
 

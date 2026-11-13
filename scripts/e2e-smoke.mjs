@@ -43,7 +43,7 @@ try {
   // ---------------- Academia: lección 1 completa
   await go('/academia');
   await expectText('Ruta de aprendizaje');
-  if (!(await page.getByText('Cómo funciona REAPER').first().isVisible())) throw new Error('lista de lecciones');
+  if (!(await page.getByText('Cómo funciona el Estudio de la app').first().isVisible())) throw new Error('lista de lecciones');
   // la lección 2 debe estar bloqueada (no es enlace)
   if (await page.locator('a[href="#/academia/l1-reaper"]').count()) throw new Error('l1-reaper debería estar bloqueada');
   ok('Academia: solo la lección 1 está desbloqueada');
@@ -59,8 +59,8 @@ try {
   await page.getByRole('button', { name: 'Comprobar respuestas' }).click();
   await expectText('¡Aprobado!');
   await shot('02-leccion');
-  await page.getByRole('button', { name: /Siguiente: Cómo funciona REAPER/ }).click();
-  await expectText('Mapa simplificado de la ventana de REAPER');
+  await page.getByRole('button', { name: /Siguiente: Cómo funciona el Estudio/ }).click();
+  await expectText('Mapa simplificado del Estudio');
   ok('Lección 1: ejercicio + evaluación aprobada desbloquean la lección 2');
 
   // widgets de las lecciones (sin errores)
@@ -70,23 +70,56 @@ try {
   }
   ok('Lecciones posteriores siguen bloqueadas hasta aprobar las anteriores');
 
-  // ---------------- Proyecto nuevo
+  // ---------------- Canción nueva → Estudio
   await go('/proyectos/nuevo');
   await page.getByPlaceholder('p. ej. Luces de medianoche').fill('Luces de medianoche');
-  await page.getByRole('button', { name: 'Crear proyecto y empezar' }).click();
+  await page.getByRole('button', { name: 'Crear y abrir el Estudio' }).click();
+  await expectText('Ajustes del loop');
+  await page.getByRole('button', { name: 'Reproducir' }).first().click();
+  await page.waitForTimeout(1500);
+  const posText = await page.getByLabel('Posición (compás.pulso)').textContent();
+  await page.getByRole('button', { name: 'Detener' }).first().click();
+  if (posText === '1.1') throw new Error('la reproducción no avanza');
+  await shot('03-estudio-pistas');
+  ok('Canción nueva con plantilla Deep House: el estudio reproduce');
+
+  // batería: encender un paso
+  const pad = page.getByRole('button', { name: 'Paso 2', exact: true });
+  await pad.click();
+  await page.getByRole('button', { name: 'Paso 2 activo' }).waitFor();
+  await page.getByRole('button', { name: 'Deshacer' }).click();
+  await page.getByRole('button', { name: 'Paso 2', exact: true }).waitFor();
+  // notas: añadir una nota al bajo
+  await page.locator('button:has-text("Bajo Deep")').first().click();
+  const before = await page.locator('button[aria-label$="(nota)"]').count();
+  await page.getByRole('button', { name: 'C2 paso 1', exact: true }).click();
+  await page.waitForFunction((n) => document.querySelectorAll('button[aria-label$="(nota)"]').length > n, before);
+  await shot('04-estudio-notas');
+  ok('Editor de batería y de notas funcionan, con deshacer');
+
+  await page.getByRole('tab', { name: 'Mezcla' }).click();
+  await expectText('Limitador de protección');
+  await page.getByRole('slider', { name: 'Volumen' }).first().fill('-10');
+  await page.getByRole('tab', { name: 'Estructura' }).click();
+  await expectText('Estructura Deep House');
+  await page.locator('input[aria-label="Nombre de la parte"]').first().waitFor();
+  await shot('05-estudio-estructura');
+  await page.waitForTimeout(900); // guardado automático
+  ok('Mezcla y estructura disponibles; cambios guardados');
+
+  // ---------------- Guía paso a paso del proyecto
+  await page.locator('a[href*="/proyectos/prj_"]').first().click();
   await expectText('Tu productor dice');
-  await expectText('Etapa 1 de 15');
-  await shot('03-proyecto-ruta');
-  ok('Proyecto Deep House creado con las 15 etapas');
   await page.getByRole('button', { name: /4\. Selección del kick/ }).click();
   await expectText('Busca un kick redondo');
-  await expectText('Por qué:');
+  await expectText('Hazlo en el Estudio');
   await page.locator('label:has-text("Comparé al menos 5 kicks") input').check();
   await page.waitForTimeout(300);
   await page.getByRole('button', { name: 'Hecho', exact: true }).click();
   await expectText('Etapa "Selección del kick" completada');
-  ok('Etapa del kick: recomendaciones justificadas, checklist y estado se guardan');
+  ok('Guía: etapa con pasos en el Estudio, checklist y estado');
   await page.getByRole('tab', { name: 'Ficha del proyecto' }).click();
+  await expectText('Pistas de tu canción (Estudio)');
   const nameInput = page.locator('label:has-text("Nombre") input').first();
   await nameInput.fill('Luces de medianoche v2');
   await nameInput.press('Enter');
@@ -101,19 +134,22 @@ try {
   await page.locator('li:has-text("Renombrar") button:has-text("Restaurar")').first().click();
   await expectText('Versión restaurada');
   await page.getByRole('heading', { name: 'Luces de medianoche', exact: true }).waitFor();
-  ok('Ficha, problemas e historial: una versión anterior se restaura correctamente');
+  ok('Ficha, problemas e historial: una versión anterior se restaura');
 
-  // ---------------- Plugins
-  await go('/plugins');
-  await page.getByRole('tab', { name: 'Incluidos en REAPER' }).click();
-  await page.locator('div.panel:has(p:text-is("ReaEQ")) button:has-text("Lo tengo")').click();
-  await page.locator('label:has-text("Versión") input').fill('7.53');
-  await page.getByRole('button', { name: 'Guardar' }).click();
-  await expectText('Plugin registrado');
-  await page.getByRole('tab', { name: 'Recomendador' }).click();
-  await expectText('Instalado');
-  await shot('04-plugins');
-  ok('Plugins: registro desde catálogo y recomendador prioriza los instalados');
+  // ---------------- Exportar a WAV (canción corta)
+  await go('/proyectos/nuevo');
+  await page.getByPlaceholder('p. ej. Luces de medianoche').fill('Prueba export');
+  await page.getByRole('button', { name: /Canción vacía/ }).click();
+  await page.getByRole('button', { name: 'Crear y abrir el Estudio' }).click();
+  await expectText('Ajustes del loop');
+  await page.getByRole('button', { name: /Exportar/ }).click();
+  await page.getByRole('button', { name: 'Renderizar' }).click();
+  await page.getByText('loudness integrado', { exact: true }).waitFor({ timeout: 60000 });
+  await shot('06-exportar');
+  const [wav] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: /Descargar/ }).click()]);
+  if (!wav.suggestedFilename().endsWith('.wav')) throw new Error('el archivo no es WAV');
+  await page.keyboard.press('Escape');
+  ok('Exportación WAV con pico y LUFS medidos, archivo descargado');
 
   // ---------------- Sonidos
   await go('/sonidos');
@@ -131,8 +167,8 @@ try {
   await page.getByLabel('Tu pregunta').fill('Mi kick y mi bajo se están peleando');
   await page.getByRole('button', { name: 'Enviar' }).click();
   await expectText('1 · Diagnóstico probable');
+  await expectText('4 · Pasos en el Estudio');
   await expectText('6 · Cómo comprobar si funcionó');
-  await expectText('ReaEQ (tuyo)', 2000).catch(() => {}); // depende de la categoría
   await shot('06-profesor');
   await page.getByLabel('Tu pregunta').fill('receta de tortilla');
   await page.getByRole('button', { name: 'Enviar' }).click();
@@ -163,8 +199,9 @@ try {
 
   // ---------------- Persistencia tras recargar
   await page.reload();
-  await go('/proyectos');
+  await go('/estudio');
   await expectText('Luces de medianoche');
+  await expectText('Prueba export');
   await go('/academia');
   await expectText('1 de 10 lecciones disponibles completadas');
   ok('Los datos persisten tras recargar (IndexedDB)');
@@ -187,7 +224,7 @@ try {
 
   // ---------------- PWA
   const manifest = await (await fetch(BASE + 'manifest.webmanifest')).json();
-  if (manifest.short_name !== 'Reaper Academy') throw new Error('manifest');
+  if (manifest.short_name !== 'Mi Estudio') throw new Error('manifest');
   const sw = await fetch(BASE + 'sw.js');
   if (!sw.ok) throw new Error('service worker');
   ok('PWA: manifest y service worker disponibles');

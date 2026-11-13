@@ -28,7 +28,7 @@ export function ProjectHistory({ project }: { project: Project }) {
   return (
     <div className="space-y-4">
       <Panel title={<span className="flex items-center gap-2"><History size={16} className="text-teal" /> Historial de cambios</span>}>
-        <p className="mb-3 text-xs text-fog-400">Cada cambio importante guarda la versión anterior de los datos del proyecto (se conservan las últimas 100). Esto guarda los datos de la app, no tu archivo .rpp de REAPER.</p>
+        <p className="mb-3 text-xs text-fog-400">Cada cambio importante guarda la versión anterior de los datos del proyecto (se conservan las últimas 100), incluida tu canción del Estudio.</p>
         <ul className="divide-y divide-ink-600">
           {snaps.map((s) => {
             const prog = projectProgress(s.data);

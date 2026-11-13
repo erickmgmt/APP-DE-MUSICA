@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bot, Disc3, GraduationCap, Library, Lightbulb, Plug, Plus, ShieldCheck, TriangleAlert } from 'lucide-react';
+import { ArrowRight, Bot, Disc3, GraduationCap, Library, Lightbulb, Plus, SlidersHorizontal, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { useLive } from '../../core/db/hooks';
-import { getSettings, listIdeas, listPlugins, listProgress, listProjects } from '../../core/db/repo';
+import { getSettings, listIdeas, listProgress, listProjects } from '../../core/db/repo';
 import { nextLesson, overallStats, levelStats } from '../../core/academyLogic';
 import { currentStage, projectProgress } from '../../core/producerAdvisor';
 import { getGenre } from '../../content/producer/genres';
@@ -20,7 +20,6 @@ function greeting(): string {
 export default function DashboardPage() {
   const progress = useLive(listProgress, ['progress']) ?? {};
   const projects = useLive(listProjects, ['projects']) ?? [];
-  const plugins = useLive(listPlugins, ['plugins']) ?? [];
   const ideas = useLive(listIdeas, ['ideas']) ?? [];
   const settings = useLive(getSettings, ['settings']);
   const [playing, setPlaying] = useState(false);
@@ -30,11 +29,11 @@ export default function DashboardPage() {
   const active = projects.filter((p) => !p.archived).slice(0, 3);
   const openIdeas = ideas.filter((i) => !['hecha', 'descartada'].includes(i.status)).length;
   const backupDays = settings?.lastBackupAt ? Math.floor((Date.now() - settings.lastBackupAt) / 86400000) : null;
-  const hasData = projects.length > 0 || plugins.length > 0 || overall.done > 0;
+  const hasData = projects.length > 0 || overall.done > 0;
 
   // Siguiente paso recomendado: equilibra aprender y producir
   const nextStep = !overall.done
-    ? { title: 'Empieza por los fundamentos', text: 'La primera lección te explica qué es un DAW y crea tu primer proyecto en REAPER.', to: '/academia/l1-daw', cta: 'Empezar lección 1' }
+    ? { title: 'Empieza por los fundamentos', text: 'La primera lección te explica qué es un estudio digital y abre tu primera canción en el Estudio.', to: '/academia/l1-daw', cta: 'Empezar lección 1' }
     : projects.length === 0 && overall.done >= 3
       ? { title: 'Crea tu primera canción', text: 'Ya conoces lo básico. Empieza un proyecto Deep House y aplica lo aprendido etapa a etapa.', to: '/proyectos/nuevo', cta: 'Nueva canción' }
       : next
@@ -53,14 +52,17 @@ export default function DashboardPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal">{greeting()}{settings?.displayName ? `, ${settings.displayName}` : ''}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Tu estudio para aprender a <span className="text-gradient">producir con REAPER</span>
+              Tu estudio para aprender a <span className="text-gradient">producir tu música</span>
             </h1>
             <p className="mt-3 max-w-xl text-sm text-fog-300">Aprende haciendo canciones reales: lecciones interactivas, un productor que te guía etapa a etapa y un profesor que responde tus dudas con pasos exactos.</p>
             <div className="mt-5 rounded-2xl border border-violet/30 bg-ink-850/80 p-4">
               <p className="text-xs uppercase tracking-wider text-fog-400">Siguiente paso recomendado</p>
               <p className="mt-1 font-semibold">{nextStep.title}</p>
               <p className="text-sm text-fog-300">{nextStep.text}</p>
-              <Link to={nextStep.to} className="btn-primary mt-3">{nextStep.cta} <ArrowRight size={16} /></Link>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link to={nextStep.to} className="btn-primary">{nextStep.cta} <ArrowRight size={16} /></Link>
+                <Link to="/estudio" className="btn-ghost"><SlidersHorizontal size={16} /> Ir al Estudio</Link>
+              </div>
             </div>
           </div>
           <div className="panel-inset p-4">
@@ -130,7 +132,7 @@ export default function DashboardPage() {
         {[
           { to: '/profesor', icon: Bot, title: 'Pregunta al profesor', text: '"Mi kick y mi bajo se pelean"' },
           { to: '/sonidos', icon: Library, title: 'Biblioteca de sonidos', text: 'Busca por intención: "atmósfera de fondo"' },
-          { to: '/plugins', icon: Plug, title: 'Mis plugins', text: plugins.length ? `${plugins.length} registrados` : 'Registra lo que tienes instalado' },
+          { to: '/estudio', icon: SlidersHorizontal, title: 'Estudio', text: 'Produce tu canción: batería, bajo, acordes y mezcla' },
           { to: '/ideas', icon: Lightbulb, title: 'Ideas y mejoras', text: openIdeas ? `${openIdeas} ideas activas` : 'Haz crecer la app contigo' },
         ].map((c) => (
           <Link key={c.to} to={c.to} className="panel group flex items-start gap-3 p-4 transition hover:-translate-y-0.5 hover:border-ink-500">

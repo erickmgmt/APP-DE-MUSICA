@@ -11,8 +11,8 @@ function Logo() {
     <div className="flex items-center gap-2.5">
       <img src="./icon.svg" alt="" className="h-9 w-9" />
       <div className="leading-tight">
-        <div className="text-sm font-bold tracking-wide">REAPER ACADEMY</div>
-        <div className="text-[10px] uppercase tracking-[0.18em] text-fog-400">Estudio inteligente</div>
+        <div className="text-sm font-bold tracking-wide">MI ESTUDIO MUSICAL</div>
+        <div className="text-[10px] uppercase tracking-[0.18em] text-fog-400">Aprende produciendo</div>
       </div>
     </div>
   );
@@ -65,7 +65,7 @@ export function Layout() {
       </div>
 
       {/* Navegación inferior (móvil) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-ink-600/70 bg-ink-900/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Navegación móvil">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-ink-600/70 bg-ink-900/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden" aria-label="Navegación móvil">
         {main.map((m) => (
           <NavLink key={m.id} to={m.path} end={m.path === '/'} className={({ isActive }) => cx('flex flex-col items-center gap-1 py-2.5 text-[10px]', isActive ? 'text-violet-soft' : 'text-fog-400')}>
             <m.icon size={20} />

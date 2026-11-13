@@ -2,7 +2,7 @@ import type { Lesson, Level } from '../types';
 import { LEVEL1 } from './level1';
 
 export const LEVELS: Level[] = [
-  { id: 1, title: 'Fundamentos', subtitle: 'DAW, REAPER, ritmo, notas, MIDI y audio', color: '#2dd4bf' },
+  { id: 1, title: 'Fundamentos', subtitle: 'El estudio, ritmo, notas, MIDI y audio', color: '#2dd4bf' },
   { id: 2, title: 'Producción', subtitle: 'Batería, bajo, sintes, arreglo y transiciones', color: '#8b5cf6' },
   { id: 3, title: 'Mezcla', subtitle: 'Ganancia, EQ, compresión, espacio y automatización', color: '#3b82f6' },
   { id: 4, title: 'Mastering', subtitle: 'Loudness, LUFS, True Peak y exportación', color: '#fbbf24' },
@@ -57,7 +57,7 @@ const LEVEL4 = planned(4, [
   ['l4-eqmaster', 'EQ de mastering', 'Ajustes amplios y suaves.'],
   ['l4-buscomp', 'Compresión de bus', 'Cohesión ("glue") del master.'],
   ['l4-referencias', 'Referencias comerciales', 'Comparar con criterio y al mismo volumen.'],
-  ['l4-export', 'Exportación', 'Render en REAPER: formatos y opciones.'],
+  ['l4-export', 'Exportación', 'Exportar a WAV: formatos y opciones.'],
   ['l4-plataformas', 'Plataformas digitales', 'Normalización y entrega.'],
 ]);
 

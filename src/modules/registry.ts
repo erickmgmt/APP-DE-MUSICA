@@ -8,9 +8,9 @@ import {
   LayoutDashboard,
   Library,
   Lightbulb,
-  Plug,
   Settings,
   SlidersHorizontal,
+  Waves,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -38,17 +38,17 @@ export interface ModuleDef {
 }
 
 export const MODULES: ModuleDef[] = [
-  { id: 'dashboard', title: 'Estudio', short: 'Inicio', description: 'Resumen de tu progreso, proyectos y siguiente paso.', icon: LayoutDashboard, path: '/', routePattern: '/', nav: 'main', status: 'activo', load: lazy(() => import('./dashboard/DashboardPage')) },
+  { id: 'dashboard', title: 'Inicio', short: 'Inicio', description: 'Resumen de tu progreso, canciones y siguiente paso.', icon: LayoutDashboard, path: '/', routePattern: '/', nav: 'main', status: 'activo', load: lazy(() => import('./dashboard/DashboardPage')) },
+  { id: 'studio', title: 'Estudio', short: 'Estudio', description: 'Produce dentro de la app: batería, bajo, acordes, melodías, samples propios, mezcla, estructura y exportación WAV.', icon: SlidersHorizontal, path: '/estudio', nav: 'main', status: 'activo', load: lazy(() => import('./studio/StudioModule')) },
   { id: 'academy', title: 'Academia', short: 'Academia', description: 'Ruta de aprendizaje progresiva con lecciones interactivas y evaluaciones.', icon: GraduationCap, path: '/academia', nav: 'main', status: 'activo', load: lazy(() => import('./academy/AcademyModule')) },
-  { id: 'producer', title: 'Productor paso a paso', short: 'Proyectos', description: 'Crea canciones guiado por las 15 etapas de producción.', icon: Disc3, path: '/proyectos', nav: 'main', status: 'activo', load: lazy(() => import('./producer/ProducerModule')) },
-  { id: 'tutor', title: 'Profesor', short: 'Profesor', description: 'Pregunta en lenguaje natural y recibe diagnóstico y pasos en REAPER.', icon: Bot, path: '/profesor', nav: 'main', status: 'activo', load: lazy(() => import('./tutor/TutorPage')) },
+  { id: 'producer', title: 'Guía paso a paso', short: 'Guía', description: 'Tus canciones guiadas por las 15 etapas de producción, de la idea a la exportación.', icon: Disc3, path: '/proyectos', nav: 'main', status: 'activo', load: lazy(() => import('./producer/ProducerModule')) },
+  { id: 'tutor', title: 'Profesor', short: 'Profesor', description: 'Pregunta en lenguaje natural y recibe diagnóstico y pasos en el estudio.', icon: Bot, path: '/profesor', nav: 'main', status: 'activo', load: lazy(() => import('./tutor/TutorPage')) },
   { id: 'sounds', title: 'Biblioteca de sonidos', short: 'Sonidos', description: 'Catálogo inteligente de tipos de sonido con buscador por intención.', icon: Library, path: '/sonidos', nav: 'more', status: 'activo', load: lazy(() => import('./sounds/SoundsPage')) },
-  { id: 'plugins', title: 'Plugins', short: 'Plugins', description: 'Registra tus plugins y recibe recomendaciones priorizadas.', icon: Plug, path: '/plugins', nav: 'more', status: 'activo', load: lazy(() => import('./plugins/PluginsPage')) },
   { id: 'ideas', title: 'Ideas y mejoras', short: 'Ideas', description: 'Registra, prioriza y convierte ideas en nuevas funciones.', icon: Lightbulb, path: '/ideas', nav: 'more', status: 'activo', load: lazy(() => import('./ideas/IdeasPage')) },
   { id: 'system', title: 'Sistema', short: 'Sistema', description: 'Copias de seguridad, historial, IA, registro de cambios y mapa de módulos.', icon: Settings, path: '/sistema', nav: 'more', status: 'activo', load: lazy(() => import('./system/SystemPage')) },
   // ---- Planeados (siguientes incrementos) ----
-  { id: 'plugin-lab', title: 'Laboratorio de plugins', short: 'Laboratorio', description: 'Simulaciones de EQ, compresor, limitador, reverb, delay, saturación, filtros y sidechain con audio y gráficas.', icon: SlidersHorizontal, path: '/laboratorio', nav: 'none', status: 'planeado' },
-  { id: 'mixmaster', title: 'Mezcla y mastering', short: 'Análisis', description: 'Medidores, analizador espectral, estéreo, LUFS, True Peak, A/B y análisis local de archivos.', icon: AudioWaveform, path: '/analisis', nav: 'none', status: 'planeado' },
+  { id: 'fx-lab', title: 'Laboratorio de efectos', short: 'Laboratorio', description: 'Aprende EQ, compresión, limitador, reverb, delay, saturación, filtros y sidechain moviendo controles y viendo gráficas.', icon: Waves, path: '/laboratorio', nav: 'none', status: 'planeado' },
+  { id: 'mixmaster', title: 'Análisis de mezcla y mastering', short: 'Análisis', description: 'Analizador de archivos (LUFS, True Peak, estéreo), comparador A/B con referencias y checklists.', icon: AudioWaveform, path: '/analisis', nav: 'none', status: 'planeado' },
   { id: 'ear', title: 'Entrenamiento auditivo', short: 'Oído', description: 'Ejercicios de frecuencias, compresión, reverb, estéreo y ritmo con puntuación.', icon: Ear, path: '/oido', nav: 'none', status: 'planeado' },
 ];
 

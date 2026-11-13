@@ -82,8 +82,6 @@ export function ProgressRing({ value, size = 64, stroke = 6, label }: { value: n
 }
 
 export const VERIFICATION_INFO: Record<Verification, { label: string; className: string; help: string }> = {
-  verificado: { label: 'Verificado', className: 'border-teal/40 bg-teal/10 text-teal', help: 'Función estándar de REAPER 7 con la configuración por defecto.' },
-  confirmar: { label: 'Confirma en pantalla', className: 'border-electric/40 bg-electric/10 text-[#93c5fd]', help: 'Existe en REAPER, pero el nombre o la ubicación pueden variar según versión, tema o paquete de idioma.' },
   general: { label: 'Recomendación general', className: 'border-violet/40 bg-violet/10 text-violet-soft', help: 'Punto de partida habitual en producción, no una regla.' },
   experimental: { label: 'Experimental', className: 'border-amber/40 bg-amber/10 text-amber', help: 'Idea creativa: pruébala y juzga con tus oídos.' },
 };

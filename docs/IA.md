@@ -1,4 +1,4 @@
-# IA en Reaper Academy
+# IA en Mi Estudio Musical
 
 ## Principios
 1. **La app funciona sin IA.** El Profesor usa una base de conocimiento offline (`src/content/tutor/knowledge.ts`)
@@ -6,9 +6,9 @@
 2. **Ninguna API key en el frontend.** La app no tiene campo para keys. Solo guarda la URL de un servidor y el
    nombre del modelo. Ese servidor (que controlas tú) guarda la key y llama al proveedor.
 3. **Envío explícito.** Solo se envía algo cuando pulsas "Preguntar a la IA": tu última pregunta y, si lo activas,
-   el contexto (género/BPM/tonalidad del último proyecto y nombres de tus plugins). Nunca audio ni archivos.
+   el contexto (género/BPM/tonalidad del último proyecto y nombres de las pistas de tu canción). Nunca audio ni archivos.
 4. Las respuestas de IA se marcan como **no verificadas**. El prompt de sistema exige las 6 partes, prohíbe
-   inventar menús de REAPER y pide etiquetar cada paso (`src/core/ai/providers.ts`).
+   describir controles que el estudio de la app no tiene (`src/core/ai/providers.ts` describe exactamente los controles del estudio).
 
 ## Arquitectura
 ```ts

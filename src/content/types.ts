@@ -1,26 +1,21 @@
 /**
  * Tipos del CONTENIDO EDUCATIVO (vive en el código, versionado con la app).
  *
- * Niveles de verificación — toda instrucción de REAPER debe llevar uno:
- *  - verificado:   función estándar de REAPER 7 con la configuración por defecto.
- *  - confirmar:    existe en REAPER, pero el nombre/ubicación puede variar según versión,
- *                  tema o paquete de idioma. El usuario debe confirmarlo en su pantalla.
- *  - general:      recomendación general de producción (punto de partida, no regla).
+ * Niveles de los CONSEJOS de producción:
+ *  - general:      recomendación habitual en producción (punto de partida, no regla).
  *  - experimental: sugerencia creativa; se juzga con los oídos.
+ * Las instrucciones de uso del estudio (StudioStep) describen la propia app, así que son exactas
+ * y deben mantenerse al día si cambia la interfaz del estudio.
  */
-export type Verification = 'verificado' | 'confirmar' | 'general' | 'experimental';
+export type Verification = 'general' | 'experimental';
 
-export interface MenuPath {
-  en: string[]; // texto original de REAPER (inglés)
-  es?: string[]; // traducción habitual; tu paquete de idioma puede usar otro texto
-}
+/** Pestaña del estudio a la que lleva un paso ("Abrir en el estudio"). */
+export type StudioView = 'pistas' | 'mezcla' | 'estructura' | 'exportar';
 
-export interface ReaperStep {
+export interface StudioStep {
   text: string;
-  menu?: MenuPath;
-  shortcut?: string; // atajo por defecto de REAPER
-  level: Verification;
   tip?: string;
+  view?: StudioView;
 }
 
 export interface QuizQuestion {
@@ -32,7 +27,7 @@ export interface QuizQuestion {
 
 export type VisualKind =
   | 'daw-map'
-  | 'reaper-map'
+  | 'studio-map'
   | 'metronome'
   | 'bar-grid'
   | 'piano'
@@ -54,7 +49,7 @@ export interface Lesson {
   keyPoints?: string[];
   visual?: { kind: VisualKind; caption: string; preset?: string };
   example?: { title: string; text: string };
-  reaper?: ReaperStep[];
+  steps?: StudioStep[]; // cómo hacerlo en el estudio de la app
   exercise?: { goal: string; steps: string[]; check: string[] };
   mistakes?: { error: string; fix: string }[];
   quiz?: QuizQuestion[];

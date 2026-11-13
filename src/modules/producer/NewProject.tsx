@@ -4,6 +4,7 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { GENRES, getGenre } from '../../content/producer/genres';
 import { STAGE_IDS } from '../../content/producer/stages';
+import { SONG_TEMPLATES } from '../../core/studio/song';
 import { createProject, emptyStage } from '../../core/db/repo';
 import { NOTES_EN, NOTES_ES } from '../../core/music/theory';
 import { Callout, Field, PageHeader, Panel, cx } from '../../components/ui';
@@ -19,6 +20,7 @@ export function NewProject() {
   const [key, setKey] = useState<MusicalKey | null>(genre.defaultKey ?? null);
   const [idea, setIdea] = useState('');
   const [ref, setRef] = useState({ title: '', artist: '' });
+  const [template, setTemplate] = useState('deep-house');
   const [busy, setBusy] = useState(false);
 
   const pickGenre = (id: string) => {
@@ -26,6 +28,7 @@ export function NewProject() {
     setGenreId(id);
     setBpm(g.defaultBpm);
     if (g.defaultKey) setKey(g.defaultKey);
+    setTemplate(id === 'deep-house' ? 'deep-house' : 'vacia');
   };
 
   const create = async () => {
@@ -40,10 +43,11 @@ export function NewProject() {
         idea: idea.trim(),
         references: ref.title.trim() ? [{ id: uid('ref'), title: ref.title.trim(), artist: ref.artist.trim(), notes: '' }] : [],
         stages,
+        song: SONG_TEMPLATES.find((t) => t.id === template)!.create(),
       },
       STAGE_IDS,
     );
-    navigate(`/proyectos/${p.id}`);
+    navigate(`/estudio/${p.id}`);
   };
 
   return (
@@ -103,7 +107,19 @@ export function NewProject() {
             </div>
           </Panel>
 
-          <Panel title="4 · Una canción de referencia (opcional)">
+          <Panel title="4 · ¿Cómo empiezas en el Estudio?">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {SONG_TEMPLATES.map((t) => (
+                <button key={t.id} onClick={() => setTemplate(t.id)} className={cx('rounded-xl border p-3 text-left transition', template === t.id ? 'border-violet bg-violet/10' : 'border-ink-600 bg-ink-850 hover:border-ink-500')}>
+                  <p className="text-sm font-semibold">{t.name}</p>
+                  <p className="text-[11px] text-fog-400">{t.description}</p>
+                </button>
+              ))}
+            </div>
+            {template === 'deep-house' && key && (key.tonic !== 'A' || key.mode !== 'menor') && <p className="mt-2 text-xs text-amber">La plantilla está escrita en La menor. Si eliges otra tonalidad, sus notas no coincidirán: usa La menor o empieza con la canción vacía.</p>}
+          </Panel>
+
+          <Panel title="5 · Una canción de referencia (opcional)">
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Título">
                 <input className="input" value={ref.title} onChange={(e) => setRef({ ...ref, title: e.target.value })} />
@@ -127,7 +143,7 @@ export function NewProject() {
             </ul>
           </Panel>
           <button className="btn-primary w-full py-3" onClick={create} disabled={busy}>
-            Crear proyecto y empezar
+            Crear y abrir el Estudio
           </button>
         </aside>
       </div>

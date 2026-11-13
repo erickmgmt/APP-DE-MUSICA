@@ -1,4 +1,4 @@
-# Arquitectura de Reaper Academy
+# Arquitectura de Mi Estudio Musical
 
 ## Tecnología y por qué
 | Pieza | Elección | Motivo |
@@ -14,18 +14,30 @@
 
 Sin librerías de gráficos: los visualizadores son canvas/SVG propios (ligeros para un Celeron).
 
+## Motor del Estudio (`src/core/studio/`)
+| Archivo | Función |
+|---|---|
+| `instruments.ts` | 23 instrumentos sintetizados. `play({ dest, time, midi, duration, velocity })` funciona en cualquier contexto de audio. |
+| `song.ts` | Modelo de canción (`project.song`): pistas (drum/synth/sample) con loop de 1/2/4 compases, partes de la estructura, plantillas y `resolveStep` (paso global → posición). |
+| `graph.ts` | Mezclador: pista → filtro → EQ 3 bandas → sidechain (ducking) → paneo → volumen → master; envíos a reverb (convolución con IR sintética) y delay (corchea con puntillo); limitador de protección. |
+| `player.ts` | `scheduleStep` (lo que suena en un paso), `StudioPlayer` (en vivo, planificación lookahead) y `renderSong` (OfflineAudioContext programado por bloques con `suspend`). |
+| `wav.ts` / `loudness.ts` | Codificación WAV 16/24 bits, pico de muestra y loudness integrado ITU-R BS.1770 (probado con la referencia EBU 3341). |
+
+La UI del estudio está en `src/modules/studio/` (`useStudio` gestiona estado local inmediato, guardado con retardo de 0,7 s,
+deshacer y reproductor).
+
 ## Capas
 ```
 src/
 ├─ main.tsx              rutas generadas desde el registro de módulos
 ├─ app/                  Layout (barra lateral / navegación móvil), aviso de actualización PWA
-├─ modules/              un directorio por módulo + registry.ts
+├─ modules/              un directorio por módulo + registry.ts (studio/ = el Estudio)
 │  ├─ dashboard/ academy/ producer/ tutor/ sounds/ plugins/ ideas/ system/
 ├─ components/
 │  ├─ ui/                Panel, Tabs, Modal, Check optimista, badges de verificación, toasts…
 │  ├─ audio/             Metrónomo, rejilla de compás, piano, escalas, tonalidades, piano roll,
 │  │                     osciloscopio, secuenciador de 16 pasos, espectro, diagramas, barra de frecuencias
-│  ├─ ReaperSteps.tsx    instrucciones de REAPER con menú EN/ES, atajo y nivel de verificación
+│  ├─ StudioSteps.tsx    pasos en el Estudio con botón que abre la pestaña correcta
 │  └─ SaveFields.tsx     campos que guardan al salir
 ├─ core/                 lógica pura (testeable)
 │  ├─ db/                database.ts (esquema + migraciones), repo.ts (CRUD, historial, respaldos), hooks.ts (useLive)
@@ -42,13 +54,14 @@ src/
 - **Contenido** (`src/content`): viaja con cada versión de la app. Actualizarlo no toca tus datos.
 - **Datos personales** (IndexedDB `reaper-academy`): solo los escribe `core/db/repo.ts`.
 
-### Stores (v1)
+### Stores (DB versión 2)
 | Store | Contenido |
 |---|---|
-| `projects` | Canciones: nombre, género, BPM, tonalidad, idea, referencias, instrumentos, plugins, cadenas FX, estado de etapas (estado, checklist, notas), notas, problemas, versiones. |
+| `projects` | Canciones: nombre, género, BPM, tonalidad, idea, referencias, **canción del estudio (`song`)**, estado de etapas, notas, problemas, versiones. (Campos antiguos de plugins/cadenas FX se conservan.) |
 | `snapshots` | Historial: copia completa del proyecto antes de cada cambio importante (máx. 100/proyecto; se conservan al borrar el proyecto → recuperable). |
 | `progress` | Progreso por lección (ejercicio, checks, mejor nota, intentos, notas). |
-| `plugins` | Catálogo personal de plugins. |
+| `plugins` | Catálogo de plugins de v0.1 (ya no se usa; se conserva por seguridad de datos). |
+| `samples` | (v2) Audio propio del usuario para el estudio (ArrayBuffer, máx. 15 MB). |
 | `ideas` | Ideas y mejoras. |
 | `chats` | Conversación con el profesor. |
 | `settings` | Ajustes (IA sin keys, plugins nativos, último respaldo). |
@@ -69,16 +82,17 @@ Importar: *merge* (gana el `updatedAt` más reciente) o *replace*. Siempre se cr
 ## Mapa de módulos
 | Módulo | Estado |
 |---|---|
-| Estudio (dashboard) | ✅ activo |
+| Inicio | ✅ activo |
+| Estudio (producción dentro de la app) | ✅ activo |
 | Academia (N1 completo; N2–N4 planificados) | ✅ activo |
-| Productor paso a paso (Deep House completo; otros géneros con ruta básica) | ✅ activo |
+| Guía paso a paso (Deep House completo; otros géneros con ruta básica) | ✅ activo |
 | Profesor (offline + IA opcional) | ✅ activo |
 | Biblioteca de sonidos | ✅ activo |
-| Plugins (catálogo + recomendador) | ✅ activo |
 | Ideas y mejoras | ✅ activo |
 | Sistema (respaldos, historial, IA, actividad) | ✅ activo |
-| Laboratorio de plugins | 🔜 planeado |
-| Mezcla y mastering (medidores, análisis local de archivos, LUFS/True Peak, A/B) | 🔜 planeado |
+| Laboratorio de efectos | 🔜 planeado |
+| Análisis de mezcla y mastering (archivos, True Peak, A/B con referencias) | 🔜 planeado |
+| Automatización en el estudio | 🔜 planeado |
 | Entrenamiento auditivo | 🔜 planeado |
 
 ## Rendimiento

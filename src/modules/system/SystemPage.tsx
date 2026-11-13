@@ -83,7 +83,7 @@ function BackupTab() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel title={<span className="flex items-center gap-2"><Download size={16} className="text-teal" /> Exportar copia de seguridad</span>}>
-        <p className="mb-3 text-sm text-fog-300">Descarga un archivo JSON con todos tus datos: proyectos (con historial), progreso, plugins, ideas, chat y ajustes. Guárdalo en otra carpeta, un USB o tu nube.</p>
+        <p className="mb-3 text-sm text-fog-300">Descarga un archivo JSON con todos tus datos: canciones (con historial), samples de audio, progreso, ideas, chat y ajustes. Guárdalo en otra carpeta, un USB o tu nube.</p>
         <p className="mb-3 text-xs text-fog-400">{settings?.lastBackupAt ? `Último respaldo: ${formatDate(settings.lastBackupAt)}${daysSince && daysSince > 7 ? ` (hace ${daysSince} días)` : ''}` : 'Aún no has descargado ningún respaldo.'}</p>
         <button className="btn-primary" onClick={doExport}><Download size={16} /> Descargar respaldo</button>
       </Panel>
@@ -194,7 +194,7 @@ function AiTab() {
           </Field>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={settings.ai.shareContext} onChange={(e) => updateSettings({ ai: { ...settings.ai, shareContext: e.target.checked } })} />
-            Enviar contexto (género, BPM, tonalidad del último proyecto y nombres de tus plugins). Nunca se envía audio.
+            Enviar contexto (género, BPM, tonalidad y nombres de pistas de tu último proyecto). Nunca se envía audio.
           </label>
           <div className="flex flex-wrap gap-2">
             <button className="btn-primary" onClick={save}>Guardar</button>

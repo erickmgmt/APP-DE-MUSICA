@@ -6,8 +6,8 @@ import { useLive } from '../../core/db/hooks';
 import { emptyProgress, listProgress, logActivity, updateProgress } from '../../core/db/repo';
 import { isComplete, isUnlocked, scoreQuiz } from '../../core/academyLogic';
 import { LessonVisual } from '../../components/audio/LessonVisual';
-import { LangPackNote, ReaperSteps } from '../../components/ReaperSteps';
-import { Callout, Check, Collapsible, PageHeader, Panel, ProgressBar, VerificationLegend, cx } from '../../components/ui';
+import { StudioSteps } from '../../components/StudioSteps';
+import { Callout, Check, PageHeader, Panel, ProgressBar, cx } from '../../components/ui';
 import { toast } from '../../components/ui/toast';
 
 function Section({ n, title, icon, children }: { n: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
@@ -173,14 +173,8 @@ export function LessonPage() {
           </Section>
         )}
 
-        <Section n={4} title="Instrucciones en REAPER 7" icon={<ListChecks size={16} className="text-teal" />}>
-          <ReaperSteps steps={lesson.reaper ?? []} />
-          <div className="mt-3 space-y-3">
-            <LangPackNote />
-            <Collapsible title="¿Qué significan las etiquetas?">
-              <VerificationLegend />
-            </Collapsible>
-          </div>
+        <Section n={4} title="Hazlo en el Estudio" icon={<ListChecks size={16} className="text-teal" />}>
+          <StudioSteps steps={lesson.steps ?? []} />
         </Section>
 
         <Section n={5} title="Ejercicio" icon={<Target size={16} className="text-teal" />}>

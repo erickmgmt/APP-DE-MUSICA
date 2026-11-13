@@ -2,6 +2,8 @@
 // El contenido educativo (lecciones, sonidos, géneros) vive en src/content y NO se guarda aquí:
 // así una actualización de la app nunca sobrescribe datos personales.
 
+import type { Song } from './studio/song';
+
 export type ID = string;
 
 export interface Timestamps {
@@ -75,6 +77,7 @@ export interface Project extends Timestamps {
   problems: Problem[];
   milestones: Milestone[];
   archived: boolean;
+  song?: Song; // canción del estudio de la app (desde v0.2)
 }
 
 export interface ProjectSnapshot {
@@ -96,6 +99,17 @@ export interface LessonProgress {
   completedAt: number | null;
   notes: string;
   updatedAt: number;
+}
+
+// ---------- Samples del usuario ----------
+export interface UserSample {
+  id: ID;
+  name: string;
+  mime: string;
+  size: number;
+  duration: number; // segundos
+  data: ArrayBuffer;
+  createdAt: number;
 }
 
 // ---------- Plugins ----------

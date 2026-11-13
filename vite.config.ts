@@ -17,9 +17,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Reaper Academy — Mi estudio musical inteligente',
-        short_name: 'Reaper Academy',
-        description: 'Aprende a producir, mezclar y masterizar canciones con REAPER.',
+        name: 'Mi Estudio Musical — aprende produciendo',
+        short_name: 'Mi Estudio',
+        description: 'Produce, mezcla y exporta canciones dentro de la app mientras aprendes.',
         lang: 'es',
         theme_color: '#0b0b14',
         background_color: '#0b0b14',

@@ -34,7 +34,7 @@ export const SUGGESTED_QUESTIONS = [
   'No sé qué poner en el segundo drop',
   'Mi mezcla suena muy opaca',
   '¿Qué hago después de terminar la batería?',
-  'REAPER se traba y hace chasquidos',
+  'La app se traba y hace cortes',
   '¿Cuántos LUFS debe tener mi master?',
   'Mi groove suena robótico',
 ];

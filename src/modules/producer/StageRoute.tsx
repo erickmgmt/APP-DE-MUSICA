@@ -1,35 +1,18 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { Ban, BookOpen, CircleCheck, Circle, CircleDot, Ear, Library, Plug, SlidersHorizontal, ThumbsUp } from 'lucide-react';
+import { Ban, BookOpen, CircleCheck, Circle, CircleDot, Ear, Library, SlidersHorizontal, ThumbsUp, Play } from 'lucide-react';
 import { STAGES, guideFor, type Advice, type Stage } from '../../content/producer/stages';
 import { getGenre } from '../../content/producer/genres';
 import { getLesson } from '../../content/academy';
 import { SOUND_CATEGORIES } from '../../content/sounds/library';
-import { PLUGIN_CATEGORIES } from '../../content/plugins/catalog';
 import { checklistRatio, currentStage } from '../../core/producerAdvisor';
-import { suggestPlugins } from '../../core/pluginAdvisor';
-import { useLive } from '../../core/db/hooks';
-import { getSettings, listPlugins, logActivity } from '../../core/db/repo';
+import { logActivity } from '../../core/db/repo';
 import type { Project, StageStatus } from '../../core/types';
-import { LangPackNote, ReaperSteps } from '../../components/ReaperSteps';
+import { StudioSteps } from '../../components/StudioSteps';
 import { Callout, Check, Panel, ProgressBar, VerificationBadge, cx } from '../../components/ui';
 import { SaveTextarea } from '../../components/SaveFields';
 import { toast } from '../../components/ui/toast';
 
 type Update = (fn: (p: Project) => Project, reason?: string, snap?: 'auto' | 'force' | 'none') => Promise<void>;
-
-const STAGE_PLUGIN_CATS: Record<string, string[]> = {
-  kick: ['sampler'],
-  groove: ['sampler'],
-  percusiones: ['sampler'],
-  bajo: ['synth', 'comp'],
-  acordes: ['synth'],
-  melodia: ['synth', 'delay'],
-  texturas: ['reverb', 'eq'],
-  automatizacion: ['filter'],
-  mezcla: ['eq', 'comp', 'reverb', 'delay'],
-  mastering: ['limiter', 'meter', 'comp'],
-  exportacion: ['meter'],
-};
 
 const STATUS: { id: StageStatus; label: string }[] = [
   { id: 'pendiente', label: 'Pendiente' },
@@ -62,9 +45,6 @@ function StageDetail({ project, stage, update }: { project: Project; stage: Stag
   const genre = getGenre(project.genreId);
   const { generic, genre: g } = guideFor(stage, project.genreId);
   const st = project.stages[stage.id] ?? { status: 'pendiente', checklist: {}, notes: '' };
-  const plugins = useLive(listPlugins, ['plugins']) ?? [];
-  const settings = useLive(getSettings, ['settings']);
-  const cats = STAGE_PLUGIN_CATS[stage.id] ?? [];
 
   const setStatus = async (status: StageStatus) => {
     await update((p) => ({ ...p, stages: { ...p.stages, [stage.id]: { ...st, status } } }), status === 'hecho' ? `Etapa completada: ${stage.title}` : `Estado de etapa: ${stage.title}`, status === 'hecho' ? 'force' : 'auto');
@@ -83,7 +63,7 @@ function StageDetail({ project, stage, update }: { project: Project; stage: Stag
     }, `Checklist: ${stage.title}`);
 
   const ratio = checklistRatio(project, stage);
-  const reaperSteps = [...(g?.reaper ?? []), ...(generic.reaper ?? [])];
+  const studioSteps = [...(g?.steps ?? []), ...(generic.steps ?? [])];
   const params = [...(g?.params ?? []), ...(generic.params ?? [])];
   const checks = [...(g?.check ?? []), ...(generic.check ?? [])];
 
@@ -150,10 +130,9 @@ function StageDetail({ project, stage, update }: { project: Project; stage: Stag
         </Panel>
       )}
 
-      {reaperSteps.length > 0 && (
-        <Panel title="Pasos en REAPER">
-          <ReaperSteps steps={reaperSteps} />
-          <div className="mt-3"><LangPackNote /></div>
+      {studioSteps.length > 0 && (
+        <Panel title="Hazlo en el Estudio" actions={<Link to={`/estudio/${project.id}`} className="btn-primary btn-sm"><Play size={14} /> Abrir estudio</Link>}>
+          <StudioSteps steps={studioSteps} projectId={project.id} />
         </Panel>
       )}
 
@@ -162,29 +141,6 @@ function StageDetail({ project, stage, update }: { project: Project; stage: Stag
           <ul className="list-disc space-y-1 pl-5 text-sm text-fog-200">
             {checks.map((c) => <li key={c}>{c}</li>)}
           </ul>
-        </Panel>
-      )}
-
-      {cats.length > 0 && (
-        <Panel title={<span className="flex items-center gap-2"><Plug size={16} className="text-teal" /> Plugins para esta etapa</span>} actions={<Link to="/plugins" className="text-xs text-fog-400 underline">Gestionar mis plugins</Link>}>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {cats.map((c) => {
-              const s = suggestPlugins(c, plugins, settings?.includeReaperStock ?? true).slice(0, 3);
-              return (
-                <div key={c} className="panel-inset p-3">
-                  <p className="label">{PLUGIN_CATEGORIES.find((x) => x.id === c)?.name}</p>
-                  <ul className="space-y-1 text-sm">
-                    {s.map((x) => (
-                      <li key={x.name} className="flex items-center justify-between gap-2">
-                        <span className="truncate">{x.name}</span>
-                        <span className={cx('chip shrink-0 text-[10px]', x.source === 'tuyo' && 'border-teal/50 text-teal')}>{x.source === 'tuyo' ? 'Tuyo' : x.source === 'reaper' ? 'REAPER' : 'Gratis'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
         </Panel>
       )}
 

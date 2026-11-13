@@ -11,7 +11,9 @@ import type {
   Settings,
   StageState,
   UserPlugin,
+  UserSample,
 } from '../types';
+import { normalizeSong } from '../studio/song';
 
 // =====================================================================
 // Ajustes
@@ -109,6 +111,7 @@ export function normalizeProject(p: Partial<Project> & { id: string }): Project 
     createdAt: now,
     updatedAt: now,
     ...p,
+    ...(p.song ? { song: normalizeSong(p.song) } : {}),
   };
 }
 
@@ -139,12 +142,19 @@ export async function listProjects(): Promise<Project[]> {
   return all.map(normalizeProject).sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
+// Marca de tiempo estrictamente creciente: dos instantáneas en el mismo milisegundo no empatan al ordenar.
+let lastSnapTs = 0;
+function snapTs(): number {
+  lastSnapTs = Math.max(Date.now(), lastSnapTs + 1);
+  return lastSnapTs;
+}
+
 async function addSnapshot(project: Project, reason: string): Promise<void> {
   const db = await getDB();
   const snap: ProjectSnapshot = {
     id: uid('snap'),
     projectId: project.id,
-    createdAt: Date.now(),
+    createdAt: snapTs(),
     reason,
     data: structuredClone(project),
   };
@@ -342,10 +352,58 @@ export async function clearChat(): Promise<void> {
 }
 
 // =====================================================================
+// Samples del usuario (audio propio para el estudio)
+// =====================================================================
+export const MAX_SAMPLE_BYTES = 15 * 1024 * 1024;
+
+export async function listSamples(): Promise<Omit<UserSample, 'data'>[]> {
+  const db = await getDB();
+  const all = await db.getAll('samples');
+  return all.sort((a, b) => b.createdAt - a.createdAt).map(({ data: _d, ...rest }) => rest);
+}
+
+export async function getSample(id: string): Promise<UserSample | undefined> {
+  const db = await getDB();
+  return db.get('samples', id);
+}
+
+export async function saveSample(s: Omit<UserSample, 'id' | 'createdAt'>): Promise<UserSample> {
+  if (s.size > MAX_SAMPLE_BYTES) throw new Error('El archivo supera 15 MB. Recórtalo o conviértelo a un formato más ligero.');
+  const db = await getDB();
+  const sample: UserSample = { ...s, id: uid('smp'), createdAt: Date.now() };
+  await db.put('samples', sample);
+  await logActivity('sample', `Sample añadido: ${sample.name}`);
+  emitChange('samples');
+  return sample;
+}
+
+export async function deleteSample(id: string): Promise<void> {
+  const db = await getDB();
+  const s = await db.get('samples', id);
+  await db.delete('samples', id);
+  await logActivity('sample', `Sample eliminado: ${s?.name ?? id}`);
+  emitChange('samples');
+}
+
+function bufToB64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+function b64ToBuf(b64: string): ArrayBuffer {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// =====================================================================
 // Copias de seguridad (exportar / importar / puntos de restauración)
 // =====================================================================
 export const BACKUP_APP_ID = 'reaper-academy';
-export const BACKUP_FORMAT = 1;
+export const BACKUP_FORMAT = 2; // 2: incluye samples (audio en base64)
 
 export interface BackupFile {
   app: typeof BACKUP_APP_ID;
@@ -355,10 +413,17 @@ export interface BackupFile {
   data: Partial<Record<StoreName, unknown[]>>;
 }
 
-export async function exportBackup(): Promise<BackupFile> {
+export async function exportBackup(opts: { includeSamples?: boolean } = {}): Promise<BackupFile> {
+  const { includeSamples = true } = opts;
   const db = await getDB();
   const data: BackupFile['data'] = {};
-  for (const store of BACKUP_STORES) data[store] = await db.getAll(store);
+  for (const store of BACKUP_STORES) {
+    if (store === 'samples') {
+      if (includeSamples) data.samples = (await db.getAll('samples')).map(({ data: d, ...rest }) => ({ ...rest, dataB64: bufToB64(d) }));
+      continue;
+    }
+    data[store] = await db.getAll(store);
+  }
   return { app: BACKUP_APP_ID, format: BACKUP_FORMAT, dbVersion: DB_VERSION, exportedAt: Date.now(), data };
 }
 
@@ -375,7 +440,7 @@ export function parseBackup(text: string): BackupFile {
   }
   const b = parsed as Partial<BackupFile>;
   if (!b || b.app !== BACKUP_APP_ID || typeof b.data !== 'object' || b.data === null) {
-    throw new Error('El archivo no es un respaldo de Reaper Academy.');
+    throw new Error('El archivo no es un respaldo de Mi Estudio Musical.');
   }
   if ((b.format ?? 0) > BACKUP_FORMAT) {
     throw new Error('Este respaldo se creó con una versión más nueva de la app. Actualiza la app antes de importarlo.');
@@ -397,6 +462,7 @@ const KEY_OF: Record<StoreName, string> = {
   settings: 'id',
   activity: 'id',
   restorePoints: 'id',
+  samples: 'id',
 };
 
 export interface ImportResult {
@@ -416,7 +482,12 @@ export async function importBackup(backup: BackupFile, mode: 'merge' | 'replace'
   const db = await getDB();
   const result: ImportResult = { added: 0, updated: 0, kept: 0 };
   for (const store of BACKUP_STORES) {
-    const rows = (backup.data[store] ?? []) as Record<string, unknown>[];
+    // Solo se tocan los stores presentes en el archivo (p. ej. un punto de restauración no lleva samples)
+    if (!(store in backup.data)) continue;
+    let rows = (backup.data[store] ?? []) as Record<string, unknown>[];
+    if (store === 'samples') {
+      rows = rows.map(({ dataB64, ...rest }) => ({ ...rest, data: typeof dataB64 === 'string' ? b64ToBuf(dataB64) : rest.data }));
+    }
     const tx = db.transaction(store, 'readwrite');
     if (mode === 'replace') await tx.store.clear();
     for (const row of rows) {
@@ -447,7 +518,8 @@ export async function importBackup(backup: BackupFile, mode: 'merge' | 'replace'
 const RESTORE_POINT_LIMIT = 10;
 
 export async function createRestorePoint(label: string): Promise<RestorePoint> {
-  const backup = await exportBackup();
+  // Sin samples: el audio ocuparía demasiado repetido en 10 puntos; los samples no se tocan al restaurar.
+  const backup = await exportBackup({ includeSamples: false });
   const payload = JSON.stringify(backup);
   const db = await getDB();
   const rp: RestorePoint = { id: uid('rp'), createdAt: Date.now(), label, payload, sizeBytes: payload.length };

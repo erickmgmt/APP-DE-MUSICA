@@ -8,10 +8,9 @@ import { getGenre } from '../../content/producer/genres';
 import { matchQuestion, SUGGESTED_QUESTIONS } from '../../core/ai/tutorEngine';
 import { TUTOR_SYSTEM_PROMPT, createProvider, type AiMessage } from '../../core/ai/providers';
 import { useLive } from '../../core/db/hooks';
-import { addChatMessage, clearChat, getSettings, listChat, listPlugins, listProjects } from '../../core/db/repo';
-import { suggestPlugins } from '../../core/pluginAdvisor';
+import { addChatMessage, clearChat, getSettings, listChat, listProjects } from '../../core/db/repo';
 import type { ChatMessage } from '../../core/types';
-import { ReaperSteps } from '../../components/ReaperSteps';
+import { StudioSteps } from '../../components/StudioSteps';
 import { Callout, PageHeader, cx } from '../../components/ui';
 
 function Part({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
@@ -24,9 +23,7 @@ function Part({ icon, title, children }: { icon: React.ReactNode; title: string;
 }
 
 function OfflineAnswer({ a }: { a: TutorAnswer }) {
-  const plugins = useLive(listPlugins, ['plugins']) ?? [];
-  const settings = useLive(getSettings, ['settings']);
-  const sugg = a.pluginCategory ? suggestPlugins(a.pluginCategory, plugins, settings?.includeReaperStock ?? true).slice(0, 3) : [];
+  const projects = useLive(listProjects, ['projects']) ?? [];
   return (
     <div className="space-y-4">
       <p className="text-base font-semibold">{a.title}</p>
@@ -35,7 +32,7 @@ function OfflineAnswer({ a }: { a: TutorAnswer }) {
       <Part icon={<Wrench size={14} />} title="3 · Solución recomendada">
         <ol className="list-decimal space-y-1 pl-5 text-sm text-fog-200">{a.solution.map((s) => <li key={s}>{s}</li>)}</ol>
       </Part>
-      {a.steps.length > 0 && <Part icon={<ListChecks size={14} />} title="4 · Pasos en REAPER"><ReaperSteps steps={a.steps} /></Part>}
+      {a.steps.length > 0 && <Part icon={<ListChecks size={14} />} title="4 · Pasos en el Estudio"><StudioSteps steps={a.steps} projectId={projects[0]?.id} /></Part>}
       {a.params.length > 0 && (
         <Part icon={<SlidersHorizontal size={14} />} title="5 · Parámetros iniciales orientativos">
           <ul className="space-y-1 text-sm">
@@ -49,12 +46,6 @@ function OfflineAnswer({ a }: { a: TutorAnswer }) {
       <Part icon={<Ear size={14} />} title="6 · Cómo comprobar si funcionó">
         <ul className="list-disc space-y-1 pl-5 text-sm text-fog-200">{a.verify.map((v) => <li key={v}>{v}</li>)}</ul>
       </Part>
-      {sugg.length > 0 && (
-        <div className="panel-inset p-3 text-sm">
-          <p className="label">Plugins sugeridos (priorizando los tuyos)</p>
-          <p>{sugg.map((s) => `${s.name}${s.source === 'tuyo' ? ' (tuyo)' : s.source === 'reaper' ? ' (REAPER)' : ' (gratis)'}`).join(' · ')}</p>
-        </div>
-      )}
       {(a.lessons?.length || a.stages?.length) ? (
         <div className="flex flex-wrap gap-2">
           {a.lessons?.map((id) => { const l = getLesson(id); return l && <Link key={id} to={`/academia/${id}`} className="btn-ghost btn-sm"><BookOpen size={14} /> {l.title}</Link>; })}
@@ -81,7 +72,7 @@ function Bubble({ m }: { m: ChatMessage }) {
           </>
         ) : (
           <>
-            {m.source === 'ia' && <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-amber"><TriangleAlert size={12} /> Respuesta generada por IA — no verificada. Comprueba rutas de menú en tu REAPER.</p>}
+            {m.source === 'ia' && <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-amber"><TriangleAlert size={12} /> Respuesta generada por IA — no verificada. Puede describir controles que el Estudio no tiene.</p>}
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-fog-200">{m.text}</p>
           </>
         )}
@@ -94,7 +85,6 @@ export default function TutorPage() {
   const messages = useLive(listChat, ['chats']) ?? [];
   const settings = useLive(getSettings, ['settings']);
   const projects = useLive(listProjects, ['projects']) ?? [];
-  const plugins = useLive(listPlugins, ['plugins']) ?? [];
   const [params, setParams] = useSearchParams();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -131,7 +121,7 @@ export default function TutorPage() {
       if (settings.ai.shareContext) {
         const p = projects[0];
         if (p) ctx.push(`Proyecto actual: ${getGenre(p.genreId).name}, ${p.bpm} BPM${p.key ? `, ${p.key.tonic} ${p.key.mode}` : ''}.`);
-        if (plugins.length) ctx.push(`Plugins instalados del alumno: ${plugins.map((x) => x.name).join(', ')}.`);
+        if (p?.song) ctx.push(`Pistas de su canción en el estudio de la app: ${p.song.tracks.map((t) => t.name).join(', ')}.`);
       }
       const msgs: AiMessage[] = [
         { role: 'system', content: TUTOR_SYSTEM_PROMPT + (ctx.length ? `\n\nContexto del alumno:\n${ctx.join('\n')}` : '') },
@@ -165,7 +155,7 @@ export default function TutorPage() {
       <PageHeader
         eyebrow="Profesor inteligente"
         title="Pregúntame lo que quieras"
-        subtitle="Describe tu problema con tus palabras. Respondo con diagnóstico, explicación, solución, pasos en REAPER, parámetros orientativos y cómo comprobarlo."
+        subtitle="Describe tu problema con tus palabras. Respondo con diagnóstico, explicación, solución, pasos en el Estudio, parámetros orientativos y cómo comprobarlo."
         actions={messages.length > 0 && <button className="btn-ghost btn-sm" onClick={() => confirm('¿Borrar la conversación?') && clearChat()}><Trash2 size={14} /> Borrar chat</button>}
       />
 

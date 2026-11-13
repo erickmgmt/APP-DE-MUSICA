@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Bot, CircleCheck, Info, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, Bot, CircleCheck, Info, SlidersHorizontal, TriangleAlert } from 'lucide-react';
 import { getGenre } from '../../content/producer/genres';
 import { advise, projectProgress } from '../../core/producerAdvisor';
 import { Callout, PageHeader, Panel, ProgressRing, Tabs, cx } from '../../components/ui';
@@ -39,7 +39,12 @@ export function ProjectWorkspace() {
       <PageHeader
         eyebrow={`${genre.name} · ${project.bpm} BPM${project.key ? ` · ${project.key.tonic} ${project.key.mode}` : ''}`}
         title={project.name}
-        actions={<Link to="/proyectos" className="btn-ghost btn-sm"><ArrowLeft size={14} /> Proyectos</Link>}
+        actions={
+          <>
+            <Link to="/proyectos" className="btn-ghost btn-sm"><ArrowLeft size={14} /> Canciones</Link>
+            <Link to={`/estudio/${project.id}`} className="btn-primary btn-sm"><SlidersHorizontal size={14} /> Abrir en el Estudio</Link>
+          </>
+        }
       />
 
       <div className="mb-5 grid gap-4 md:grid-cols-[auto_1fr]">

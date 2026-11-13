@@ -76,7 +76,7 @@ export function PianoLesson() {
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-1 rounded-lg border border-ink-600 p-1 text-xs">
-          <button className={cx('rounded-md px-2 py-1', !latin && 'bg-ink-600')} onClick={() => setLatin(false)}>C D E (REAPER)</button>
+          <button className={cx('rounded-md px-2 py-1', !latin && 'bg-ink-600')} onClick={() => setLatin(false)}>C D E</button>
           <button className={cx('rounded-md px-2 py-1', latin && 'bg-ink-600')} onClick={() => setLatin(true)}>Do Re Mi</button>
         </div>
         {last !== null && (

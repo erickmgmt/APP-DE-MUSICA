@@ -35,46 +35,34 @@ export function DawMap() {
   );
 }
 
-// ---------------------------------------------------------------- Mapa (simplificado) de REAPER
+// ---------------------------------------------------------------- Mapa del Estudio de la app
 const ZONES = [
-  { id: 'menu', label: 'Menú y barra de herramientas', text: 'Arriba: menús File, Edit, View, Insert, Item, Track, Options, Actions, Extensions, Help (según idioma) y la barra de herramientas con botones como el snap (imán) y la cuadrícula.' },
-  { id: 'tcp', label: 'Panel de pistas (TCP)', text: 'A la izquierda: cada pista con su nombre, botones de grabar, mute (M), solo (S), FX, ruteo, volumen y paneo. Doble clic en el espacio vacío = pista nueva.' },
-  { id: 'arrange', label: 'Área de arreglo + regla', text: 'El centro: la regla de tiempo arriba (compás.pulso) y los ítems de audio/MIDI de cada pista. El cursor de edición marca desde dónde se reproduce.' },
-  { id: 'transport', label: 'Transporte', text: 'Reproducir, parar, grabar, repetir (loop), metrónomo, posición actual, BPM y métrica.' },
-  { id: 'mcp', label: 'Mezclador (MCP)', text: 'Abajo (Ctrl+M para mostrar/ocultar): cada pista como un canal vertical con fader, medidor y botones FX, más el canal Master.' },
+  { id: 'transport', label: 'Transporte', text: 'Arriba: ▶/■ reproducir y detener, modo Loop o Canción, posición (compás.pulso), BPM con − y +, deshacer (↶) y Exportar a WAV.' },
+  { id: 'tabs', label: 'Pestañas', text: 'Pistas (crear el patrón), Mezcla (volumen y efectos) y Estructura (las partes de la canción).' },
+  { id: 'tracks', label: 'Lista de pistas', text: 'Cada pista con su color, su sonido y los botones M (silenciar) y S (solo). Debajo: "Añadir pista" y los Ajustes del loop (duración y swing).' },
+  { id: 'editor', label: 'Editor de la pista', text: 'Batería: 16 casillas por compás. Instrumentos: editor de notas con duración, modo Acorde y "Solo notas de la escala". Aquí también cambias el sonido o duplicas la pista.' },
 ];
 
-export function ReaperMap() {
-  const [sel, setSel] = useState('tcp');
+export function StudioMap() {
+  const [sel, setSel] = useState('editor');
   const cur = ZONES.find((z) => z.id === sel)!;
-  const zone = (id: string, cls: string, content?: React.ReactNode) => (
-    <button onClick={() => setSel(id)} className={cx('relative rounded-lg border text-[10px] font-semibold uppercase tracking-wide transition sm:text-xs', sel === id ? 'border-teal bg-teal/15 text-teal' : 'border-ink-500 bg-ink-800 text-fog-400 hover:bg-ink-700', cls)}>
-      {content ?? ZONES.find((z) => z.id === id)!.label}
+  const zone = (id: string, cls: string) => (
+    <button onClick={() => setSel(id)} className={cx('rounded-lg border px-1 text-[10px] font-semibold uppercase tracking-wide transition sm:text-xs', sel === id ? 'border-teal bg-teal/15 text-teal' : 'border-ink-500 bg-ink-800 text-fog-400 hover:bg-ink-700', cls)}>
+      {ZONES.find((z) => z.id === id)!.label}
     </button>
   );
   return (
     <div className="space-y-3">
-      <div className="grid aspect-[16/10] grid-cols-[30%_1fr] grid-rows-[12%_1fr_12%_26%] gap-1.5 rounded-xl border border-ink-500 bg-ink-950 p-1.5" aria-label="Mapa simplificado de la ventana de REAPER">
-        {zone('menu', 'col-span-2')}
-        {zone('tcp', '')}
-        {zone(
-          'arrange',
-          'overflow-hidden',
-          <div className="absolute inset-0 p-2">
-            <div className="mb-1 h-3 rounded bg-ink-600/80 text-left text-[8px] leading-3 text-fog-400">&nbsp;1 · 2 · 3 · 4 · 5</div>
-            <div className="mb-1 ml-[5%] h-[18%] w-[40%] rounded bg-violet/40" />
-            <div className="mb-1 ml-[20%] h-[18%] w-[55%] rounded bg-electric/40" />
-            <div className="ml-[10%] h-[18%] w-[30%] rounded bg-teal/30" />
-            <div className="absolute bottom-1 right-2">Área de arreglo</div>
-          </div>,
-        )}
+      <div className="grid aspect-[16/10] grid-cols-[32%_1fr] grid-rows-[14%_11%_1fr] gap-1.5 rounded-xl border border-ink-500 bg-ink-950 p-1.5" aria-label="Mapa simplificado del Estudio">
         {zone('transport', 'col-span-2')}
-        {zone('mcp', 'col-span-2')}
+        {zone('tabs', 'col-span-2')}
+        {zone('tracks', '')}
+        {zone('editor', '')}
       </div>
       <div className="panel-inset p-3 text-sm text-fog-200 animate-fade-up" key={sel}>
         <b className="text-teal">{cur.label}:</b> {cur.text}
       </div>
-      <p className="text-xs text-fog-400">Esquema simplificado: la posición exacta de cada elemento depende del tema y de tu configuración (por ejemplo, el transporte puede estar arriba o abajo).</p>
+      <p className="text-xs text-fog-400">En el teléfono el editor aparece debajo de la lista de pistas.</p>
     </div>
   );
 }

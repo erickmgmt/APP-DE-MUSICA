@@ -23,7 +23,7 @@ const PRIORITIES: { id: IdeaPriority; label: string; weight: number }[] = [
 const moduleName = (id: string) => (id === 'nuevo' ? 'Módulo nuevo' : MODULES.find((m) => m.id === id)?.title ?? id);
 
 export function buildFeaturePrompt(i: Idea): string {
-  return `Quiero añadir una funcionalidad a Reaper Academy.
+  return `Quiero añadir una funcionalidad a la app Mi Estudio Musical (repositorio APP-DE-MUSICA).
 
 Idea: ${i.title}
 Descripción: ${i.description || '(sin descripción)'}
@@ -31,7 +31,7 @@ Módulo: ${moduleName(i.module)}
 Prioridad: ${i.priority}
 
 Instrucciones:
-- Lee primero CLAUDE.md y respeta sus reglas (datos personales intactos, migraciones aditivas, niveles de verificación en instrucciones de REAPER, sin botones decorativos).
+- Lee primero CLAUDE.md y respeta sus reglas (datos personales intactos, migraciones aditivas, instrucciones del estudio exactas, sin botones decorativos).
 - Analiza cómo encaja con la arquitectura actual (src/modules/registry.ts) y propón el diseño antes de implementarlo si es grande.
 - Implementa, añade pruebas, ejecuta "npm test" y "npm run build", y verifica en el navegador.
 - Actualiza CHANGELOG.md, src/content/changelog.ts y la documentación.`;

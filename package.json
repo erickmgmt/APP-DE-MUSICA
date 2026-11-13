@@ -1,9 +1,9 @@
 {
   "name": "reaper-academy",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Reaper Academy — estudio musical inteligente para aprender a producir con REAPER.",
+  "description": "Mi Estudio Musical — estudio de producción dentro de la app para aprender produciendo.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

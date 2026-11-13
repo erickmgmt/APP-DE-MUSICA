@@ -8,7 +8,7 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let analyser: AnalyserNode | null = null;
-let noiseBuffer: AudioBuffer | null = null;
+const noiseCache = new WeakMap<BaseAudioContext, AudioBuffer>();
 
 export function getAudio(): { ctx: AudioContext; master: GainNode; analyser: AnalyserNode } {
   if (!ctx) {
@@ -38,14 +38,21 @@ export function setMasterVolume(v: number): void {
   getAudio().master.gain.value = v;
 }
 
-function getNoise(c: AudioContext): AudioBuffer {
-  if (!noiseBuffer || noiseBuffer.sampleRate !== c.sampleRate) {
+export function getNoise(c: BaseAudioContext): AudioBuffer {
+  let buf = noiseCache.get(c);
+  if (!buf) {
     const len = c.sampleRate * 1;
-    noiseBuffer = c.createBuffer(1, len, c.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
+    buf = c.createBuffer(1, len, c.sampleRate);
+    const data = buf.getChannelData(0);
     for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    noiseCache.set(c, buf);
   }
-  return noiseBuffer;
+  return buf;
+}
+
+/** Contexto donde suena una voz: el del nodo destino (permite render offline) o el de la app. */
+function ctxOf(dest?: AudioNode): BaseAudioContext {
+  return dest ? dest.context : getAudio().ctx;
 }
 
 function out(dest?: AudioNode): AudioNode {
@@ -64,7 +71,7 @@ export interface KickOptions {
 }
 
 export function playKick(time?: number, o: KickOptions = {}, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const { startFreq = 150, endFreq = 50, decay = 0.45, click = 0.35, gain = 0.95 } = o;
   const osc = c.createOscillator();
@@ -94,7 +101,7 @@ export function playKick(time?: number, o: KickOptions = {}, dest?: AudioNode): 
 }
 
 export function playClap(time?: number, gain = 0.55, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const bp = c.createBiquadFilter();
   bp.type = 'bandpass';
@@ -117,7 +124,7 @@ export function playClap(time?: number, gain = 0.55, dest?: AudioNode): void {
 }
 
 export function playHat(time?: number, open = false, gain = 0.25, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const hp = c.createBiquadFilter();
   hp.type = 'highpass';
@@ -134,7 +141,7 @@ export function playHat(time?: number, open = false, gain = 0.25, dest?: AudioNo
 }
 
 export function playShaker(time?: number, gain = 0.12, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const bp = c.createBiquadFilter();
   bp.type = 'bandpass';
@@ -152,7 +159,7 @@ export function playShaker(time?: number, gain = 0.12, dest?: AudioNode): void {
 }
 
 export function playRim(time?: number, gain = 0.3, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const osc = c.createOscillator();
   osc.type = 'triangle';
@@ -169,7 +176,7 @@ export function playRim(time?: number, gain = 0.3, dest?: AudioNode): void {
 }
 
 export function playClick(time?: number, accent = false, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const osc = c.createOscillator();
   osc.type = 'square';
@@ -195,7 +202,7 @@ export interface ToneOptions {
 }
 
 export function playTone(freq: number, duration = 0.5, time?: number, o: ToneOptions = {}, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const { type = 'triangle', gain = 0.25, attack = 0.008, release = 0.25, cutoff = 6000, detune = 0 } = o;
   const osc = c.createOscillator();
@@ -240,7 +247,7 @@ export function playPluck(freq: number, time?: number, gain = 0.2, dest?: AudioN
 
 /** Ruido rosa aproximado filtrado: barrido tipo "riser" para FX. */
 export function playRiser(duration = 2, time?: number, dest?: AudioNode): void {
-  const { ctx: c } = getAudio();
+  const c = ctxOf(dest);
   const t = time ?? c.currentTime;
   const n = c.createBufferSource();
   n.buffer = getNoise(c);

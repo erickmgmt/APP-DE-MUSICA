@@ -1,6 +1,6 @@
 /**
  * Teoría musical básica (temperamento igual, La4 = 440 Hz).
- * Nombres anglosajones (C D E...) y latinos (Do Re Mi...) — REAPER usa los anglosajones.
+ * Nombres anglosajones (C D E...) y latinos (Do Re Mi...) — la mayoría de programas musicales usan los anglosajones.
  */
 
 export const NOTES_EN = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
@@ -13,7 +13,7 @@ export function midiToFreq(midi: number): number {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-/** Nota en notación de REAPER: el Do central (MIDI 60) se muestra como C4 por defecto. */
+/** Nombre de nota con octava: el Do central (MIDI 60) es C4. */
 export function midiToName(midi: number, latin = false): string {
   const pc = ((midi % 12) + 12) % 12;
   const octave = Math.floor(midi / 12) - 1;

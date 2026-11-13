@@ -1,5 +1,5 @@
 import type { VisualKind } from '../../content/types';
-import { DawMap, ReaperMap } from './Diagrams';
+import { DawMap, StudioMap } from './Diagrams';
 import { BarGrid, Metronome } from './RhythmWidgets';
 import { KeyExplorer, PianoLesson, PianoRoll, ScalePlayer } from './TheoryWidgets';
 import { WaveformLab } from './WaveformLab';
@@ -10,8 +10,8 @@ export function LessonVisual({ kind, preset }: { kind: VisualKind; preset?: stri
   switch (kind) {
     case 'daw-map':
       return <DawMap />;
-    case 'reaper-map':
-      return <ReaperMap />;
+    case 'studio-map':
+      return <StudioMap />;
     case 'metronome':
       return <Metronome />;
     case 'bar-grid':
